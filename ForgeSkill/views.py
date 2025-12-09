@@ -30,7 +30,8 @@ def root_redirect(request):
 def login_view(request):
     # Soporta POST desde la plantilla: campos `email` (que puede ser email o username) y `password`
     if request.method == 'POST':
-        email_or_username = request.POST.get('email', '').strip()
+        # El formulario envía `identifier` que puede ser email o username
+        email_or_username = request.POST.get('identifier', '').strip()
         password = request.POST.get('password', '')
 
         # Intentar primero por username (campo obligatorio)
