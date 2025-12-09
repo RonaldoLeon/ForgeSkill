@@ -220,25 +220,50 @@
         <div class="proyectos-grid">
             {% for proyecto in proyectos %}
                 <div class="proyecto-card">
-                    <h3>{{ proyecto.nombre }}</h3>
-                    <div class="proyecto-meta">
-                        <span>👤 Líder: <strong>{{ proyecto.lider.username }}</strong></span>
-                        {% if proyecto.dificultad %}
-                            <span class="dificultad dificultad-{% if proyecto.dificultad == 'Baja' %}baja{% elif proyecto.dificultad == 'Media' %}media{% else %}alta{% endif %}">
-                                {{ proyecto.dificultad }}
-                            </span>
-                        {% endif %}
+                    <div style="display:flex; gap:12px; align-items:flex-start;">
+                        <div style="width:100px; height:70px; flex-shrink:0; overflow:hidden; border-radius:6px; background:#f1f3f5; display:flex;align-items:center;justify-content:center;">
+                            {% if proyecto.imagen %}
+                                <img src="{{ proyecto.imagen.url }}" alt="{{ proyecto.nombre }}" style="width:100%; height:100%; object-fit:cover;">
+                            {% else %}
+                                <img src="{% static 'img/Imagen de WhatsApp 2025-09-09 a las 14.23.17_09f8b50d.jpg' %}" alt="Proyecto" style="width:100%; height:100%; object-fit:cover;">
+                            {% endif %}
+                        </div>
+                        <div style="flex:1;">
+                            <h3 style="margin:0">{{ proyecto.nombre }}</h3>
+                            <div class="proyecto-meta">
+                                <span>👤 Líder: <strong>{{ proyecto.lider.username }}</strong></span>
+                                {% if proyecto.dificultad %}
+                                    <span class="dificultad dificultad-{% if proyecto.dificultad == 'Baja' %}baja{% elif proyecto.dificultad == 'Media' %}media{% else %}alta{% endif %}">
+                                        {{ proyecto.dificultad }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                     <div class="proyecto-descripcion">
                         {{ proyecto.descripcion|truncatewords:50 }}
                     </div>
                     <div class="proyecto-actions">
                         {% if proyecto.id in usuario_participante %}
-                            <a href="{% url 'leave_project' proyecto.id %}" class="btn-small btn-leave">🚪 Abandonar</a>
+                            <form method="post" action="{% url 'leave_project' proyecto.id %}" style="display:inline">{% csrf_token %}
+                                <button type="submit" class="btn-small btn-leave" onclick="return confirm('¿Estás seguro que quieres abandonar este proyecto?');">🚪 Abandonar</button>
+                            </form>
                         {% else %}
-                            <a href="{% url 'join_project' proyecto.id %}" class="btn-small btn-join">✓ Unirse</a>
+                            <form method="post" action="{% url 'join_project' proyecto.id %}" style="display:inline">{% csrf_token %}
+                                <button type="submit" class="btn-small btn-join" onclick="return confirm('¿Unirte a este proyecto?');">✓ Unirse</button>
+                            </form>
                         {% endif %}
+
                         <a href="{% url 'proyecto_detalle' proyecto.id %}" class="btn-small btn-ver">📄 Ver detalles</a>
+
+                        {# Postularse si no es líder, no participa y no ha aplicado ya #}
+                        {% if request.user.is_authenticated and proyecto.lider != request.user and proyecto.id not in usuario_participante and proyecto.id not in aplicado_ids %}
+                            <form method="post" action="{% url 'postular' proyecto.id %}" style="display:inline">{% csrf_token %}
+                                <button type="submit" class="btn-small btn-ver" onclick="return confirm('¿Enviar postulación para este proyecto?');">✉️ Postularse</button>
+                            </form>
+                        {% elif proyecto.id in aplicado_ids %}
+                            <span style="padding:6px 10px; background:#fff3cd; border-radius:4px; font-weight:600;">Postulado</span>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}

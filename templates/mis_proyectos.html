@@ -232,6 +232,41 @@
         </div>
     {% endif %}
 
+    {# --- Sección de postulaciones del usuario --- #}
+    <div style="margin-top:30px;">
+        <h2>📝 Mis Postulaciones</h2>
+        {% load static %}
+        {% with solicitudes=solicitudes %}
+            {% if solicitudes %}
+                <div style="margin-top:12px;">
+                    <table style="width:100%; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+                        <thead style="background:#f8f9fa; text-align:left;">
+                            <tr><th style="padding:10px">Proyecto</th><th style="padding:10px">Estado</th><th style="padding:10px">Acciones</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for s in solicitudes %}
+                                <tr>
+                                    <td style="padding:10px">{{ s.proyecto.nombre }}</td>
+                                    <td style="padding:10px">{{ s.get_estado_display }}</td>
+                                    <td style="padding:10px">
+                                        <a href="{% url 'proyecto_detalle' s.proyecto.id %}" class="btn-small btn-ver">Ver</a>
+                                        {% if s.estado == 'pendiente' %}
+                                            <form method="post" action="{% url 'cancel_postulacion' s.proyecto.id %}" style="display:inline">{% csrf_token %}
+                                                <button type="submit" class="btn-small btn-editar" onclick="return confirm('¿Cancelar postulación?');">✖ Cancelar</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="color:#95a5a6; margin-top:12px">No tienes postulaciones pendientes.</p>
+            {% endif %}
+        {% endwith %}
+    </div>
+
 </div>
 
 </body>

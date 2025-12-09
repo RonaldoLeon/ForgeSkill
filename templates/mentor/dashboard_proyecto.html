@@ -14,18 +14,27 @@
     
     <div class="columna">
         <div class="card">
-            <h3>👥 Solicitudes Pendientes</h3>
+            <h3>👥 Solicitudes</h3>
             <table class="tabla-simple">
                 {% for sol in solicitudes %}
                 <tr>
-                    <td>{{ sol.usuario }}</td>
+                    <td>{{ sol.usuario.username }}</td>
+                    <td>{{ sol.get_estado_display }}</td>
                     <td>
-                        <button class="btn-small btn-success">✓</button>
-                        <button class="btn-small btn-danger">✗</button>
+                        {% if sol.estado == 'pendiente' %}
+                            <form method="post" action="{% url 'approve_solicitud' sol.id %}" style="display:inline">{% csrf_token %}
+                                <button type="submit" class="btn-small btn-success" onclick="return confirm('¿Aprobar esta postulación?');">✓ Aprobar</button>
+                            </form>
+                            <form method="post" action="{% url 'reject_solicitud' sol.id %}" style="display:inline">{% csrf_token %}
+                                <button type="submit" class="btn-small btn-danger" onclick="return confirm('¿Rechazar esta postulación?');">✗ Rechazar</button>
+                            </form>
+                        {% else %}
+                            <span style="font-size:13px;color:#888;">{{ sol.get_estado_display }}</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
-                <p>No hay solicitudes pendientes.</p>
+                <tr><td colspan="3">No hay solicitudes.</td></tr>
                 {% endfor %}
             </table>
         </div>

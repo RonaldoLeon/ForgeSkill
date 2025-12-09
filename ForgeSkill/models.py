@@ -47,6 +47,7 @@ class Proyecto(models.Model):
     estado = models.CharField(max_length=20, default="pendiente")
     descripcion = models.TextField(blank=True, null=True)
     dificultad = models.CharField(max_length=50, blank=True, null=True)
+    imagen = models.ImageField(upload_to='proyectos/', blank=True, null=True)
     participantes = models.ManyToManyField(User, related_name="proyectos_participante", blank=True)
 
     def __str__(self):

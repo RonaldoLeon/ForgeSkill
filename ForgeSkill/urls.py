@@ -10,7 +10,7 @@ from ForgeSkill.views import gestion_proyecto, otorgar_insignia, admin_dashboard
 from ForgeSkill.views import crear_tarea, editar_tarea, eliminar_tarea, lista_examenes, crear_pregunta
 from ForgeSkill.views import tomar_examen
 from ForgeSkill.views import lista_insignias, otorgar_insignia_mentor
-from ForgeSkill.views import foro_proyecto, postular
+from ForgeSkill.views import foro_proyecto, postular, cancel_postulacion, approve_solicitud, reject_solicitud
 from .views import login_view, root_redirect,admin_panel
 from django.conf import settings
 from django.conf.urls.static import static
@@ -46,6 +46,8 @@ urlpatterns = [
     path('proyecto/unirse/<int:proyecto_id>/', join_project, name='join_project'),
     path('proyecto/abandonar/<int:proyecto_id>/', leave_project, name='leave_project'),
     path('mentor/proyecto/<int:proyecto_id>/', gestion_proyecto, name='gestion_proyecto'),
+    path('mentor/solicitud/aprobar/<int:solicitud_id>/', approve_solicitud, name='approve_solicitud'),
+    path('mentor/solicitud/rechazar/<int:solicitud_id>/', reject_solicitud, name='reject_solicitud'),
     path('mentor/insignias/', otorgar_insignia, name='otorgar_insignia'),
     # admin_panel ya está mapeado a la vista personalizada `admin_panel` arriba
     path('mentor/tarea/crear/<int:proyecto_id>/', crear_tarea, name='crear_tarea'),
@@ -58,6 +60,7 @@ urlpatterns = [
     path('mentor/otorgar-insignia/', otorgar_insignia_mentor, name='otorgar_insignia_mentor'),
     path('proyecto/<int:proyecto_id>/foro/', foro_proyecto, name='foro_proyecto'),
     path('postular/<int:proyecto_id>/', postular, name='postular'),
+    path('postular/cancelar/<int:proyecto_id>/', cancel_postulacion, name='cancel_postulacion'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

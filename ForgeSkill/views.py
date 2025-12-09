@@ -113,7 +113,58 @@ def usuario_view(request):
     return render(request, 'usuario.html')
 
 def dashboard_view(request):
-    return render (request, 'dashboard.html')
+    # Mostrar métricas personalizadas en el dashboard del usuario
+    proyectos_activos = 0
+    insignias_count = 0
+    progreso_total = 0
+    proyectos_recomendados = []
+    catalogo_insignias = []
+
+    if request.user.is_authenticated:
+        # Proyectos donde el usuario participa
+        proyectos_participando = Proyecto.objects.filter(participantes=request.user)
+        proyectos_activos = proyectos_participando.count()
+
+        # Insignias otorgadas al usuario
+        insignias_count = InsigniaOtorgada.objects.filter(usuario=request.user).count()
+
+        # Catálogo de insignias (todas) y marcar las que ya tiene el usuario
+        todas_insignias = Insignia.objects.all()
+        otorgadas_ids = set(InsigniaOtorgada.objects.filter(usuario=request.user).values_list('insignia_id', flat=True))
+        catalogo_insignias = []
+        for ins in todas_insignias:
+            catalogo_insignias.append({
+                'id': ins.id,
+                'nombre': ins.nombre,
+                'tiene': ins.id in otorgadas_ids,
+            })
+
+        # Calcular progreso total: promedio del % de tareas completadas en los proyectos donde participa
+        porcentajes = []
+        for p in proyectos_participando:
+            tareas_total = Tarea.objects.filter(proyecto=p).count()
+            tareas_completadas = Tarea.objects.filter(proyecto=p, estado='completada').count()
+            if tareas_total > 0:
+                porcentajes.append((tareas_completadas / tareas_total) * 100)
+            else:
+                # Si no hay tareas, consideramos 0% de progreso
+                porcentajes.append(0)
+
+        if porcentajes:
+            progreso_total = int(sum(porcentajes) / len(porcentajes))
+        else:
+            progreso_total = 0
+
+        # Proyectos recomendados: proyectos cuyo líder es staff (creados por admins) y aprobados
+        proyectos_recomendados = Proyecto.objects.filter(lider__is_staff=True, estado='aprobada')[:6]
+
+    return render(request, 'dashboard.html', {
+        'proyectos_activos': proyectos_activos,
+        'insignias_count': insignias_count,
+        'progreso_total': progreso_total,
+        'proyectos_recomendados': proyectos_recomendados,
+        'catalogo_insignias': catalogo_insignias,
+    })
 
 def proyectos_list(request):
     # Mostrar solo proyectos aprobados para usuarios normales
@@ -129,12 +180,19 @@ def proyectos_list(request):
             ).values_list('id', flat=True)
         )
 
+    # IDs de proyectos a los que el usuario ya aplicó
+    aplicado_ids = set()
+    if request.user.is_authenticated:
+        from .models import Solicitud
+        aplicado_ids = set(Solicitud.objects.filter(usuario=request.user).values_list('proyecto_id', flat=True))
+
     # Pasar proyectos también como queryset para templates donde sea necesario
     
     return render(request, 'proyectos_list.html', {
         'proyectos': proyectos, 
         'categorias': categorias,
         'usuario_participante': usuario_participante
+        , 'aplicado_ids': aplicado_ids
     })
  
 # Reemplaza tu actual proyecto_detalle con esto:
@@ -149,12 +207,29 @@ def proyecto_detalle(request, proyecto_id=None): # Acepta un ID opcionalmente
  
 def mis_proyectos(request):
     # Mostrar proyectos donde el usuario participa (incluye los que lidera)
-    proyectos = Proyecto.objects.filter(participantes=request.user).distinct()
-    # También incluir proyectos donde es líder aunque no figure en participantes
-    lider_proyectos = Proyecto.objects.filter(lider=request.user)
-    proyectos = (proyectos | lider_proyectos).distinct()
+    from django.db.models import Q
+    proyectos = Proyecto.objects.filter(Q(participantes=request.user) | Q(lider=request.user)).distinct()
 
-    return render(request, 'mis_proyectos.html', {'proyectos': proyectos})
+    # IDs de proyectos en los que el usuario participa
+    usuario_participante = set()
+    if request.user.is_authenticated:
+        usuario_participante = set(
+            Proyecto.objects.filter(participantes=request.user).values_list('id', flat=True)
+        )
+
+    # Postulaciones del usuario
+    solicitudes = Solicitud.objects.filter(usuario=request.user).select_related('proyecto') if request.user.is_authenticated else []
+
+    aplicado_ids = set()
+    if request.user.is_authenticated:
+        aplicado_ids = set(solicitudes.values_list('proyecto_id', flat=True))
+
+    return render(request, 'mis_proyectos.html', {
+        'proyectos': proyectos,
+        'usuario_participante': usuario_participante,
+        'aplicado_ids': aplicado_ids,
+        'solicitudes': solicitudes,
+    })
 
 @login_required
 def perfil(request):
@@ -266,12 +341,13 @@ def crear_proyecto(request):
         return redirect('proyectos_list')
 
     if request.method == 'POST':
-        form = ProyectoForm(request.POST)
+        form = ProyectoForm(request.POST, request.FILES)
         if form.is_valid():
             proyecto = form.save(commit=False)
             proyecto.lider = request.user
             proyecto.estado = 'pendiente'
             proyecto.save()
+            # If imagen was uploaded, save m2m or file already handled by ModelForm
             return redirect('mis_proyectos')
     else:
         form = ProyectoForm()
@@ -407,30 +483,72 @@ def chats_list(request):
 
 @login_required
 def gestion_proyecto(request, proyecto_id):
-    # Simulación de datos para el frontend
-    proyecto = {
-        "id": proyecto_id, "nombre": "Desarrollo Web Fullstack", 
-        "progreso": 75, "descripcion": "Crear una app de e-commerce"
-    }
-    
-    solicitudes = [
-        {"usuario": "JuanPerez", "id": 1, "estado": "pendiente"},
-        {"usuario": "MariaDev", "id": 2, "estado": "pendiente"},
-    ]
-    
-    tareas = [
-        {"id": 1, "titulo": "Diseñar Base de Datos", "asignado": "JuanPerez", "estado": "completada"},
-        {"id": 2, "titulo": "Frontend Login", "asignado": "Sin asignar", "estado": "pendiente"},
-    ]
-    
-    participantes = ["JuanPerez", "CarlosR", "AnaG"]
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+
+    # Solo el líder del proyecto o staff puede gestionar
+    if request.user != proyecto.lider and not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para gestionar este proyecto.')
+        return redirect('dashboard')
+
+    # Solicitudes pendientes para este proyecto
+    solicitudes = Solicitud.objects.filter(proyecto=proyecto).order_by('-id')
+
+    # Tareas reales del proyecto
+    tareas = Tarea.objects.filter(proyecto=proyecto)
+
+    # Participantes
+    participantes = proyecto.participantes.all()
 
     return render(request, 'mentor/dashboard_proyecto.html', {
-        "proyecto": proyecto,
-        "solicitudes": solicitudes,
-        "tareas": tareas,
-        "participantes": participantes
+        'proyecto': proyecto,
+        'solicitudes': solicitudes,
+        'tareas': tareas,
+        'participantes': participantes,
     })
+
+
+@login_required
+@require_POST
+def approve_solicitud(request, solicitud_id):
+    s = get_object_or_404(Solicitud, id=solicitud_id)
+    proyecto = s.proyecto
+    # Only leader or staff can approve
+    if request.user != proyecto.lider and not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para aprobar esta solicitud.')
+        return redirect('gestion_proyecto', proyecto_id=proyecto.id)
+
+    s.estado = 'aprobada'
+    s.save()
+    # Añadir al participante
+    proyecto.participantes.add(s.usuario)
+
+    # Enviar notificación por correo (si es posible)
+    try:
+        subject = f"Tu postulación a {proyecto.nombre} fue aprobada"
+        body = f"Hola {s.usuario.first_name or s.usuario.username},\n\nTu postulación al proyecto '{proyecto.nombre}' ha sido aprobada. Puedes acceder al proyecto en la plataforma.\n\nSaludos,\nEquipo ForgeSkill"
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or 'no-reply@forgeskill.local'
+        send_mail(subject, body, from_email, [s.usuario.email], fail_silently=True)
+    except Exception:
+        pass
+
+    messages.success(request, f"Se aprobó la postulación de {s.usuario.username}.")
+    return redirect('gestion_proyecto', proyecto_id=proyecto.id)
+
+
+@login_required
+@require_POST
+def reject_solicitud(request, solicitud_id):
+    s = get_object_or_404(Solicitud, id=solicitud_id)
+    proyecto = s.proyecto
+    if request.user != proyecto.lider and not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para rechazar esta solicitud.')
+        return redirect('gestion_proyecto', proyecto_id=proyecto.id)
+
+    s.estado = 'rechazada'
+    s.save()
+
+    messages.info(request, f"Se rechazó la postulación de {s.usuario.username}.")
+    return redirect('gestion_proyecto', proyecto_id=proyecto.id)
 
 @login_required
 def otorgar_insignia(request):
@@ -628,15 +746,39 @@ def foro_proyecto(request, proyecto_id):
 # ... (tus otras vistas) ...
 
 @login_required
+@require_POST
 def postular(request, proyecto_id):
     # 1. Buscamos el proyecto
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
-    
-    # 2. Creamos la solicitud si no existe ya
-    Solicitud.objects.get_or_create(
-        usuario=request.user, 
+
+    # 2. Si el usuario ya es participante o es el líder, no puede postular
+    if proyecto.lider == request.user or proyecto.participantes.filter(id=request.user.id).exists():
+        messages.info(request, 'Ya formas parte de este proyecto o eres el líder.')
+        return redirect('proyectos_list')
+
+    # 3. Creamos la solicitud si no existe ya
+    solicitud, created = Solicitud.objects.get_or_create(
+        usuario=request.user,
         proyecto=proyecto
     )
-    
-    # 3. Redirigimos al usuario (al dashboard o a mis proyectos)
+
+    if created:
+        messages.success(request, 'Tu postulación fue registrada.')
+    else:
+        messages.info(request, 'Ya te habías postulado a este proyecto.')
+
+    # 4. Redirigimos al usuario a Mis Proyectos (donde verá su postulación)
+    return redirect('mis_proyectos')
+
+
+@login_required
+@require_POST
+def cancel_postulacion(request, proyecto_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    try:
+        s = Solicitud.objects.get(usuario=request.user, proyecto=proyecto)
+        s.delete()
+        messages.success(request, 'Tu postulación fue cancelada.')
+    except Solicitud.DoesNotExist:
+        messages.info(request, 'No existe la postulación.')
     return redirect('mis_proyectos')
