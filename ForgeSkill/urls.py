@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from ForgeSkill.views import dashboard_view, proyectos_list, proyecto_detalle,mis_proyectos, perfil, chat, notificaciones, chats_list
-from ForgeSkill.views import crear_proyecto, block_user, change_role
+from ForgeSkill.views import crear_proyecto, block_user, change_role, admin_delete_proyecto
 from ForgeSkill.views import approve_project, reject_project
 from ForgeSkill.views import join_project, leave_project
 from ForgeSkill.views import  login_view, home_view, resitro_view, recuperacion_view , usuario_view, logout_view
@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/proyecto/aprobar/<int:proyecto_id>/', approve_project, name='approve_project'),
     path('admin/proyecto/rechazar/<int:proyecto_id>/', reject_project, name='reject_project'),
     path('admin/insignias/', lista_insignias, name='lista_insignias'),
+    path('admin/proyecto/eliminar/<int:proyecto_id>/', admin_delete_proyecto, name='admin_delete_proyecto'),
 
     path('admin/', admin.site.urls),
     path('login/', login_view, name='login'),

@@ -261,6 +261,7 @@ def admin_panel(request):
 
     usuarios_qs = User.objects.all().order_by("-date_joined")[:10]
     proyectos_pendientes = Proyecto.objects.filter(estado="pendiente")
+    proyectos_all = Proyecto.objects.all()
 
     usuarios = []
     for u in usuarios_qs:
@@ -280,7 +281,8 @@ def admin_panel(request):
             "insignias_dadas": insignias_dadas
         },
         "usuarios": usuarios,
-        "proyectos_pendientes": proyectos_pendientes
+        "proyectos_pendientes": proyectos_pendientes,
+        "proyectos_all": proyectos_all,
     })
 
 
@@ -373,6 +375,31 @@ def change_role(request, user_id):
     if u != request.user:
         u.is_staff = not u.is_staff
         u.save()
+    return redirect('admin_panel')
+
+
+@login_required
+@require_POST
+def admin_delete_proyecto(request, proyecto_id):
+    # Solo staff puede borrar proyectos desde el panel
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para eliminar proyectos.')
+        return redirect('admin_panel')
+
+    p = Proyecto.objects.filter(id=proyecto_id).first()
+    if not p:
+        messages.error(request, 'El proyecto no existe o ya fue eliminado.')
+        return redirect('admin_panel')
+    # Eliminar archivo de imagen asociado si existe (usa el storage backend)
+    try:
+        if p.imagen:
+            p.imagen.delete(save=False)
+    except Exception:
+        # No bloquear por errores de borrado de archivo
+        pass
+
+    p.delete()
+    messages.success(request, 'Proyecto eliminado correctamente.')
     return redirect('admin_panel')
 
 @login_required

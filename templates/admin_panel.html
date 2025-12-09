@@ -279,7 +279,37 @@
 
     </div>
 
+    <div class="card" style="margin-top:20px;">
+        <h3>📦 Todos los Proyectos</h3>
+        {% for p in proyectos_all %}
+            <div class="item-lista">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:80px; height:56px; overflow:hidden; border-radius:6px; background:#f1f3f5; display:flex;align-items:center;justify-content:center;">
+                        {% if p.imagen %}
+                            <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" style="width:100%; height:100%; object-fit:cover;">
+                        {% else %}
+                            <img src="{% static 'img/Imagen de WhatsApp 2025-09-09 a las 14.23.17_09f8b50d.jpg' %}" alt="Proyecto" style="width:100%; height:100%; object-fit:cover;">
+                        {% endif %}
+                    </div>
+                    <div>
+                        <strong>{{ p.nombre }}</strong><br>
+                        <small>Líder: {{ p.lider.username }} • Estado: {{ p.estado }}</small>
+                    </div>
+                </div>
+                <div>
+                    <a href="{% url 'proyecto_detalle' p.id %}" class="btn-small btn-info">Ver</a>
+                    <form method="post" action="{% url 'admin_delete_proyecto' p.id %}" style="display:inline">{% csrf_token %}
+                        <button type="submit" class="btn-small btn-danger-small" onclick="return confirm('¿Eliminar definitivamente este proyecto? Esta acción no se puede deshacer.');">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <p style="color:#95a5a6; text-align:center;">No hay proyectos registrados.</p>
+        {% endfor %}
+    </div>
+
 </div>
 
 </body>
 </html>
+
