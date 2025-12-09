@@ -1,0 +1,72 @@
+        body {
+            margin: 0;
+            padding: 0;
+            background: #fbfaf3;
+            font-family: Arial, sans-serif;
+            color: #17293f;
+        }
+
+        .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00BCD4;
+            margin-bottom: 20px;
+        }
+
+        .proyecto-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .proyecto-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+        }
+
+        .nombre-proyecto {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #17293f;
+        }
+
+        .estado {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            display: inline-block;
+        }
+
+        .en-curso { background: #00BCD4; }
+        .pendiente { background: #FF9800; }
+        .finalizado { background: #4CAF50; }
+
+        .descripcion {
+            margin-top: 10px;
+            color: #333;
+        }
+
+        /* Filtro */
+        .filtros {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #00BCD4;
+            background: white;
+            color: #17293f;
+            font-weight: bold;
+        }

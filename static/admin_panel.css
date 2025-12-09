@@ -1,0 +1,132 @@
+:root {
+    --accent: #00BCD4;
+    --dark: #17293f;
+    --bg: #fbfaf3;
+    --glass: rgba(255,255,255,0.06);
+    --radius: 12px;
+    --shadow: 0 8px 30px rgba(23,41,63,0.18);
+}
+
+/* ===== RESET ===== */
+body {
+    background: var(--bg);
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: var(--dark);
+}
+
+h1, h3 {
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+/* ===== CARDS ===== */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(23,41,63,0.08);
+}
+
+.stat-card {
+    width: 230px;
+    text-align: center;
+}
+
+.numero-grande {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+/* ===== CONTENEDORES ===== */
+.flex {
+    display: flex;
+    gap: 20px;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 25px;
+}
+
+/* ===== LISTA DE PROYECTOS ===== */
+.item-lista {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.item-lista:last-child {
+    border-bottom: none;
+}
+
+/* ===== BOTONES ===== */
+.btn-small {
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: 0.15s;
+    background: var(--dark);
+    color: white;
+}
+
+.btn-small:hover {
+    opacity: 0.8;
+}
+
+.btn-success {
+    background: #16A34A;
+}
+
+.btn-danger {
+    background: #DC2626;
+}
+
+/* ===== TABLAS ===== */
+.tabla-completa {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+
+.tabla-completa thead {
+    background: var(--accent);
+    color: white;
+}
+
+.tabla-completa th,
+.tabla-completa td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.tabla-completa tbody tr:hover {
+    background: rgba(0,188,212,0.08);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+
+    .flex {
+        flex-direction: column;
+    }
+
+    .stat-card {
+        width: 100%;
+    }
+}

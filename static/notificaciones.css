@@ -1,0 +1,8 @@
+        body { background:#fbfaf3; font-family:Arial; color:#17293f; }
+        .card {
+            width:300px; background:white; padding:20px; 
+            margin:20px auto; border-radius:8px;
+            box-shadow:0 2px 6px rgba(0,0,0,0.15);
+        }
+        a { text-decoration:none; color:#00BCD4; }
+        .user { padding:10px; border-bottom:1px solid #eee; }
