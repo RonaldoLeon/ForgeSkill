@@ -1,0 +1,27 @@
+{% extends 'usuario.html' %}
+{% load static %}
+
+{% block head %}
+    <title>Notificaciones</title>
+    <link rel="stylesheet" href="{% static 'notificaciones.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<h1 style="text-align:center;">Notificaciones</h1>
+
+<div class="card">
+    <h3>Chats Disponibles</h3>
+
+    {% for usuario in usuarios %}
+        <div class="user">
+            <a href="/chat/{{ usuario.id }}/">
+                💬 {{ usuario.username }}
+            </a>
+        </div>
+    {% empty %}
+        <p>No hay usuarios para chatear.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

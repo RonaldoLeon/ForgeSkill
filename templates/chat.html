@@ -1,0 +1,38 @@
+{%load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat con {{ otro.username }}</title>
+    <link rel="stylesheet" href="{% static 'chat.css' %}">
+</head>
+<body>
+
+<h2 style="text-align:center;">Chat con {{ otro.username }}</h2>
+
+<div class="chat-box" id="chat">
+
+    {% for m in mensajes %}
+        {% if m.remitente.id == request.user.id %}
+            <div class="msg yo">{{ m.contenido }}</div>
+        {% else %}
+            <div class="msg otros">{{ m.contenido }}</div>
+        {% endif %}
+    {% endfor %}
+
+</div>
+
+<form class="form" method="POST">
+    {% csrf_token %}
+    <input type="text" name="mensaje" placeholder="Escribe un mensaje...">
+    <button>Enviar</button>
+</form>
+
+<script>
+    // Scroll automático al final
+    let chat = document.getElementById("chat");
+    chat.scrollTop = chat.scrollHeight;
+</script>
+
+</body>
+</html>

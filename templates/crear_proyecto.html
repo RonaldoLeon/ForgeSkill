@@ -1,0 +1,15 @@
+{% extends 'usuario.html' %}
+{% load static %}
+
+{% block title %}Crear Proyecto{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Crear Proyecto</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn">Crear</button>
+    </form>
+</div>
+{% endblock %}

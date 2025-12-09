@@ -1,0 +1,15 @@
+{% extends 'usuario.html' %}
+
+{% block title %}Proyecto{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <h1>{{ proyecto.nombre }}</h1>
+    <p>{{ proyecto.descripcion }}</p>
+    <p><strong>Dificultad:</strong> {{ proyecto.dificultad }}</p>
+
+    <a class="btn" href="{% url 'postular' proyecto.id %}">Postularme</a>
+</div>
+
+{% endblock %}

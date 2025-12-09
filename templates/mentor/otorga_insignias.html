@@ -1,0 +1,30 @@
+{% extends 'usuario.html' %}
+{% block title %}Otorgar Reconocimiento{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 40px auto;">
+    <h2 style="text-align: center; color: #00BCD4;">🎖️ Otorgar Insignia</h2>
+    <p style="text-align: center; color: #666;">Reconoce el esfuerzo de tus estudiantes</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 15px;">
+            <label>Seleccionar Estudiante:</label>
+            {{ form.usuario }}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Seleccionar Insignia:</label>
+            {{ form.insignia }}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Motivo (Opcional):</label>
+            {{ form.motivo }}
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">¡Premiar!</button>
+    </form>
+</div>
+{% endblock %}

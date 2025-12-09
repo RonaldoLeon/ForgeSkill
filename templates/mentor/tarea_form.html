@@ -1,0 +1,42 @@
+{% extends 'usuario.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 40px auto;">
+    <h2 style="text-align: center; color: #00BCD4;">{{ titulo }}</h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 15px;">
+            <label>Título de la tarea</label>
+            {{ form.titulo }}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Asignar a:</label>
+            {{ form.asignado_a }}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Estado actual:</label>
+            {{ form.estado }}
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn" style="flex: 1;">Guardar</button>
+            <a href="javascript:history.back()" class="btn" style="background: #999; flex: 1; text-align: center;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .input-estilo {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}

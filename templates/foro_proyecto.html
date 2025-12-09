@@ -1,0 +1,51 @@
+{% extends 'usuario.html' %}
+{% load static %}
+
+{% block title %}Foro: {{ proyecto.nombre }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'chat.css' %}">
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;">
+        <h2>💬 Foro: {{ proyecto.nombre }}</h2>
+        <a href="{% url 'dashboard' %}" class="btn-small" style="background:#999; text-decoration:none; color:white;">Volver</a>
+    </div>
+
+    <div class="chat-box" id="chat-scroll" style="height: 400px; background: #f9f9f9; border: 1px solid #e0e0e0;">
+        {% for c in comentarios %}
+            {% if c.usuario == request.user %}
+                <div class="msg yo" style="position: relative; margin-bottom: 25px;">
+                    <div style="font-weight: bold; font-size: 11px; margin-bottom: 2px; opacity: 0.8;">Tú</div>
+                    {{ c.contenido }}
+                    <div style="font-size: 10px; opacity: 0.6; text-align: right; margin-top: 5px;">{{ c.fecha|date:"H:i" }}</div>
+                </div>
+            {% else %}
+                <div class="msg otros" style="position: relative; margin-bottom: 25px;">
+                    <div style="font-weight: bold; font-size: 11px; margin-bottom: 2px; color: #00BCD4;">{{ c.usuario.username }}</div>
+                    {{ c.contenido }}
+                    <div style="font-size: 10px; opacity: 0.6; margin-top: 5px;">{{ c.fecha|date:"H:i" }}</div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <p style="text-align: center; color: #999; margin-top: 150px;">
+                Aún no hay mensajes en este proyecto.<br>¡Sé el primero en escribir! 👋
+            </p>
+        {% endfor %}
+    </div>
+
+    <form method="POST" class="form" style="width: 100%; margin: 20px 0 0 0;">
+        {% csrf_token %}
+        <input type="text" name="contenido" placeholder="Escribe un mensaje para el equipo..." required autocomplete="off">
+        <button type="submit">Enviar ➤</button>
+    </form>
+</div>
+
+<script>
+    // Auto-scroll al fondo al cargar
+    window.onload = function() {
+        var chatBox = document.getElementById("chat-scroll");
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
+{% endblock %}

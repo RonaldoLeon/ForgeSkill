@@ -1,0 +1,43 @@
+{% extends 'usuario.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <h1>Bienvenido, {{ user.first_name }}</h1>
+    {% if user.is_staff %}
+        <a href="{% url 'admin_panel' %}" class="btn" style="padding:10px 15px;text-decoration:none;">⚙️ Panel Admin</a>
+    {% endif %}
+</div>
+
+<div class="flex">
+
+    <div class="card" style="flex:1;">
+        <h3>Proyectos Activos</h3>
+        <p>{{ proyectos_activos }}</p>
+    </div>
+
+    <div class="card" style="flex:1;">
+        <h3>Insignias</h3>
+        <p>{{ insignias_count }}</p>
+    </div>
+
+    <div class="card" style="flex:1;">
+        <h3>Progreso Total</h3>
+        <p>{{ progreso_total }}%</p>
+    </div>
+
+</div>
+
+<h2 style="margin-top:30px;">Proyectos Recomendados</h2>
+
+{% for proyecto in proyectos_recomendados %}
+    <div class="card" style="margin-top:15px;">
+        <h3>{{ proyecto.nombre }}</h3>
+        <p>Dificultad: {{ proyecto.dificultad }}</p>
+        <a href="{% url 'proyecto_detalle' proyecto.id %}" class="btn">Ver más</a>
+    </div>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Sistema</title>
+
+  <link rel="stylesheet" href="{% static 'login.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <main class="card" role="main" aria-labelledby="titulo-login">
+
+    <!-- PANEL IZQUIERDO -->
+    <section class="panel-left">
+      <div class="brand">
+        <div class="logo">
+          <img src="{% static 'img/Imagen de WhatsApp 2025-09-09 a las 14.23.17_09f8b50d.jpg' %}" alt="Logo">
+        </div>
+        <div>
+          <strong>ForgeSkill</strong>
+          <div style="font-size:13px;color:#40606c">
+            Forjando habilidades, creando oportunidades
+          </div>
+        </div>
+      </div>
+
+      <h1 id="titulo-login">Bienvenido de nuevo</h1>
+      <p class="lead">
+        Ingresa con tu cuenta para acceder a tus proyectos, pruebas y evaluaciones.
+        Si aún no tienes cuenta, regístrate — es rápido.
+      </p>
+
+      <div class="features">
+        <div class="feature"><span class="dot"></span><span>Insignias y logros</span></div>
+        <div class="feature"><span class="dot"></span><span>Revisión de proyectos</span></div>
+        <div class="feature"><span class="dot"></span><span>Exámenes y filtros</span></div>
+      </div>
+    </section>
+
+    <!-- PANEL DERECHO -->
+    <section class="panel-right">
+
+      <div class="form-title">
+        <h2>Iniciar sesión</h2>
+        <a href="{% url 'recuperacion' %}">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <!-- FORMULARIO -->
+      <form id="loginForm" method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div>
+          <label for="email">Correo electrónico o Usuario</label>
+          <input id="email" name="email" type="text"
+                 placeholder="tu@ejemplo.com o tu_usuario" required autocomplete="username">
+        </div>
+
+        <div>
+          <label for="password">Contraseña</label>
+          <div style="position:relative">
+            <input id="password" name="password" type="password"
+                   placeholder="Tu contraseña" required autocomplete="current-password">
+            <button type="button" id="togglePwd">👁️</button>
+          </div>
+        </div>
+
+        <!-- BOTÓN REAL, AHORA BLINDADO CON ID PARA EVITAR INTERFERENCIA -->
+        <button class="btn" id="btnSubmit" type="submit">Entrar</button>
+
+      </form>
+
+      <div style="margin-top:12px; text-align:center;">
+        <span>¿No tienes cuenta?</span>
+        <a href="{% url 'registro' %}" class="btn"
+           style="display:inline-block; margin-left:8px; padding:6px 12px; font-size:14px;">
+           Crear cuenta
+        </a>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="{% static 'login.js' %}"></script>
+</body>
+</html>

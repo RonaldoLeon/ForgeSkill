@@ -1,0 +1,23 @@
+{% extends 'usuario.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'profile.css' %}">
+
+<div class="card">
+    <h2>Agregar experiencia</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button class="boton" type="submit">Guardar experiencia</button>
+    </form>
+
+    <a href="{% url 'perfil' %}" class="boton" style="margin-top:12px;display:inline-block;">
+        Volver al perfil
+    </a>
+</div>
+
+{% endblock %}

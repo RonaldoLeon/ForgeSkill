@@ -1,0 +1,35 @@
+{% extends 'usuario.html' %}
+{% block title %}Exámenes del Proyecto{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1>📚 Exámenes y Tests</h1>
+        <button class="btn">+ Crear Nuevo Examen</button>
+    </div>
+
+    <table class="tabla-completa">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Preguntas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ex in examenes %}
+            <tr>
+                <td><strong>{{ ex.titulo }}</strong></td>
+                <td>{{ ex.preguntas_count }} preguntas</td>
+                <td>
+                    <a href="#" class="btn-small" style="background:#00BCD4;">Ver Preguntas</a>
+                    <a href="{% url 'crear_pregunta' ex.id %}" class="btn-small" style="background:#4CAF50;">+ Añadir Pregunta</a>
+                </td>
+            </tr>
+            {% empty %}
+            <p>No hay exámenes configurados.</p>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

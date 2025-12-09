@@ -1,0 +1,80 @@
+{% extends 'usuario.html' %}
+{% block title %}Gestión de Proyecto{% endblock %}
+
+{% block content %}
+<div class="header-proyecto">
+    <h1>Gestión: {{ proyecto.nombre }}</h1>
+    <div class="progreso-bar">
+        <span style="width: {{ proyecto.progreso}}%;"></span>
+    </div>
+    <p>Progreso General: {{ proyecto.progreso }}%</p>
+</div>
+
+<div class="grid-container">
+    
+    <div class="columna">
+        <div class="card">
+            <h3>👥 Solicitudes Pendientes</h3>
+            <table class="tabla-simple">
+                {% for sol in solicitudes %}
+                <tr>
+                    <td>{{ sol.usuario }}</td>
+                    <td>
+                        <button class="btn-small btn-success">✓</button>
+                        <button class="btn-small btn-danger">✗</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <p>No hay solicitudes pendientes.</p>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+            <h3>Participantes Activos</h3>
+            <ul>
+                {% for p in participantes %}
+                <li>{{ p }} <a href="#" style="font-size:12px;">(Mensaje)</a></li>
+                {% endfor %}
+            </ul>
+            <a href="{% url 'otorgar_insignia' %}" class="btn">🏆 Otorgar Insignia</a>
+        </div>
+    </div>
+
+    <div class="columna" style="flex: 2;">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between;">
+                <h3>📋 Tablero de Tareas</h3>
+                <button class="btn">+ Nueva Tarea</button>
+            </div>
+            
+            <table class="tabla-completa">
+                <thead>
+                    <tr>
+                        <th>Tarea</th>
+                        <th>Asignado a</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in tareas %}
+                    <tr>
+                        <td>{{ t.titulo }}</td>
+                        <td>{{ t.asignado }}</td>
+                        <td>
+                            <span class="badge {{ t.estado }}">{{ t.estado }}</span>
+                        </td>
+                        <td><button class="btn-small">Editar</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<a href="{% url 'foro_proyecto' proyecto.id %}" class="btn" style="background: #673AB7;">
+    💬 Chat del Equipo
+</a>
+{% endblock %}

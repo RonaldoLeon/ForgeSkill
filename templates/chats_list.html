@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chats - ForgeSkill</title>
+    <link rel="stylesheet" href="{% static 'chat.css' %}">
+</head>
+<body>
+
+<div style="max-width:1000px;margin:30px auto;">
+    <h1 style="text-align:center;">Chats</h1>
+
+    <section style="margin-bottom:20px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+        <h3>Buscar usuario para chatear</h3>
+        <form method="get" action="">
+            <input type="text" name="q" placeholder="Busca por usuario, nombre o apellido" value="{{ q }}" style="padding:8px;width:60%;">
+            <button type="submit" style="padding:8px 12px;">Buscar</button>
+        </form>
+
+        <div style="margin-top:12px;">
+            {% if search_users %}
+                <ul>
+                    {% for u in search_users %}
+                        <li>💬 <a href="{% url 'chat' u.id %}">{{ u.username }}</a> {% if u.first_name or u.last_name %} - {{ u.first_name }} {{ u.last_name }}{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No se encontraron usuarios.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+        <h3>Chats Disponibles</h3>
+        {% if chats_users and chats_users|length > 0 %}
+            <ul>
+                {% for u in chats_users %}
+                    <li>💬 <a href="{% url 'chat' u.id %}">{{ u.username }}</a> {% if u.first_name or u.last_name %} - {{ u.first_name }} {{ u.last_name }}{% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No tienes conversaciones aún. Usa la búsqueda para encontrar usuarios y comenzar a chatear.</p>
+        {% endif %}
+    </section>
+
+</div>
+
+</body>
+</html>

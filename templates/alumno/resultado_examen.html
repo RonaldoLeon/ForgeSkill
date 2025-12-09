@@ -1,0 +1,22 @@
+{% extends 'usuario.html' %}
+{% block title %}Resultados{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; margin-top: 50px;">
+    <h1>Resultados: {{ examen.titulo }}</h1>
+    
+{% if nota >= 70 %}
+    <div style="font-size: 40px; font-weight: bold; margin: 20px 0; color: #4CAF50;">
+{% else %}
+    <div style="font-size: 40px; font-weight: bold; margin: 20px 0; color: #f44336;">
+{% endif %}
+    {{ nota|floatformat:1 }}%
+</div>
+
+    </div>
+
+    <p>Acertaste {{ aciertos }} preguntas.</p>
+
+    <a href="{% url 'dashboard' %}" class="btn">Volver al Dashboard</a>
+</div>
+{% endblock %}

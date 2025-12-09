@@ -1,0 +1,35 @@
+{% extends 'usuario.html' %}
+{% block title %}{{ examen.titulo }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 30px auto;">
+    <h1 style="color: #17293f; text-align:center;">{{ examen.titulo }}</h1>
+    <p style="text-align:center;">{{ examen.descripcion }}</p>
+    <hr>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        {% for item in preguntas %}
+        <div class="pregunta-bloque" style="margin-bottom: 30px;">
+            <h3 style="color: #00BCD4;">{{ forloop.counter }}. {{ item.objeto.texto_pregunta }}</h3>
+            
+            <div class="opciones">
+                {% for op in item.opciones %}
+                <div style="margin: 8px 0;">
+                    <label>
+                        <input type="radio" name="pregunta_{{ item.objeto.id }}" value="{{ op }}" required>
+                        {{ op }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn" style="width:100%; padding: 15px; font-size: 18px;">
+            Finalizar Examen
+        </button>
+    </form>
+</div>
+{% endblock %}

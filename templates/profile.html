@@ -1,0 +1,64 @@
+{% extends 'usuario.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'profile.css' %}">
+
+<div class="card">
+
+    <h2>Mi Perfil</h2>
+
+    {% if perfil.foto %}
+        <img src="{{ perfil.foto.url }}" class="foto">
+    {% else %}
+        <p>No tienes foto. Sube una:</p>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="boton">Guardar Perfil</button>
+    </form>
+
+    <hr>
+
+    <h3>Conocimientos Seleccionados:</h3>
+    <ul>
+    {% for c in perfil.conocimientos.all %}
+        <li>{{ c.nombre }}</li>
+    {% empty %}
+        <p>No has seleccionado conocimientos.</p>
+    {% endfor %}
+    </ul>
+
+    <hr>
+
+    <h3>Experiencia Acumulada</h3>
+
+    <a class="boton" href="/perfil/experiencia/agregar/">Agregar experiencia</a>
+
+    <ul>
+    {% for e in experiencias %}
+        <li>
+            <strong>{{ e.proyecto }}</strong> — {{ e.rol }} ({{ e.fecha }})<br>
+            {{ e.descripcion }}
+        </li>
+    {% empty %}
+        <p>No tienes experiencia registrada.</p>
+    {% endfor %}
+    </ul>
+
+    <hr>
+
+    <div style="display:flex;gap:8px;align-items:center;margin-top:12px;">
+        <a href="/perfil/pdf/" class="boton">Generar PDF CV</a>
+        <form method="POST" action="{% url 'logout' %}" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="boton" style="background:#c94b4b;border:none;">Cerrar sesión</button>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

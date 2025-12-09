@@ -1,0 +1,59 @@
+{% extends 'usuario.html' %}
+{% block title %}Gestión de Insignias{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🏅 Gestión de Insignias (Admin)</h1>
+    
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h3>Nueva Insignia</h3>
+        <form method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
+            {% csrf_token %}
+            
+            <div style="flex: 1;">
+                <label>Nombre:</label>
+                {{ form.nombre }}
+            </div>
+            
+            <div style="flex: 2;">
+                <label>Descripción:</label>
+                {{ form.descripcion }}
+            </div>
+
+            <div style="flex: 1;">
+                <label>Puntos:</label>
+                {{ form.puntos }}
+            </div>
+            
+            <div style="flex: 1;">
+                <label>Imagen:</label>
+                {{ form.imagen }}
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 25px;">Crear</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <h3>Insignias Disponibles</h3>
+    <div class="grid-container">
+        {% for i in insignias %}
+        <div class="card" style="text-align: center; width: 200px; border: 1px solid #eee;">
+            <div style="font-size: 40px;">
+                {% if i.imagen %}
+                    <img src="{{ i.imagen.url }}" style="width: 50px; height: 50px;">
+                {% else %}
+                    🏆
+                {% endif %}
+            </div>
+            <h4 style="color: #17293f; margin: 10px 0;">{{ i.nombre }}</h4>
+            <p style="font-size: 12px; color: #666;">{{ i.descripcion }}</p>
+            <span class="badge pendiente">+{{ i.puntos }} pts</span>
+        </div>
+        {% empty %}
+        <p>No hay insignias creadas aún.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
