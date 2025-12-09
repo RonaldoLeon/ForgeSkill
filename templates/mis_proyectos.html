@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mis Proyectos - ForgeSkill</title>
+    <link rel="stylesheet" href="{% static 'colors.css' %}">
     <style>
         * {
             margin: 0;
@@ -12,213 +13,272 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
+            background: #f5f8fa;
         }
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 20px 30px;
+        .navbar {
+            background: linear-gradient(135deg, #0d5487 0%, #021e3d 100%);
+            padding: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .header h1 {
-            font-size: 28px;
-            font-weight: 600;
+        .navbar .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            padding: 16px 24px;
+            margin: 0;
         }
-        .header-actions {
+        .navbar ul {
+            list-style: none;
             display: flex;
-            gap: 12px;
+            margin: 0;
+            padding: 0;
         }
-        .btn-header {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+        .navbar li {
+            margin: 0;
+        }
+        .navbar a {
+            color: white;
+            padding: 16px 18px;
+            display: block;
+            transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-block;
-            font-weight: 500;
-            transition: all 0.3s;
         }
-        .btn-primary {
-            background-color: #3498db;
-            color: white;
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
         }
-        .btn-primary:hover {
-            background-color: #2980b9;
-        }
-        .btn-secondary {
-            background-color: #95a5a6;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #7f8c8d;
+        .page-title {
+            max-width: 1200px;
+            margin: 30px auto 0;
+            padding: 0 20px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #0d5487;
         }
         .container {
             max-width: 1200px;
             margin: 30px auto;
-            padding: 0 20px;
+            padding: 0 20px 40px 20px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0d5487;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1575a7;
         }
         .proyectos-grid {
             display: grid;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
         }
         .proyecto-card {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            padding: 20px;
-            border-left: 4px solid #3498db;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #1575a7;
         }
-        .proyecto-card h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 20px;
+        .proyecto-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        .proyecto-content {
+            padding: 20px;
+        }
+        .proyecto-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0d5487;
+            margin: 0 0 10px 0;
         }
         .proyecto-meta {
             display: flex;
-            gap: 20px;
+            gap: 10px;
             margin-bottom: 12px;
-            font-size: 14px;
             flex-wrap: wrap;
+            font-size: 13px;
         }
-        .proyecto-meta span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .meta-badge {
+            background: #e8f4f8;
+            color: #0d5487;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
         }
         .estado {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: 600;
         }
         .estado-pendiente {
-            background-color: #fff3cd;
+            background: #fff3cd;
             color: #856404;
         }
         .estado-aprobada {
-            background-color: #d4edda;
+            background: #d4edda;
             color: #155724;
         }
         .estado-rechazada {
-            background-color: #f8d7da;
+            background: #f8d7da;
             color: #721c24;
         }
         .proyecto-descripcion {
             color: #666;
+            font-size: 14px;
+            line-height: 1.5;
             margin-bottom: 15px;
-            line-height: 1.6;
+            max-height: 60px;
+            overflow: hidden;
         }
         .proyecto-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
         .btn-small {
-            padding: 8px 15px;
+            padding: 8px 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
         }
         .btn-ver {
-            background-color: #3498db;
+            background: #1575a7;
             color: white;
         }
         .btn-ver:hover {
-            background-color: #2980b9;
+            background: #0d5487;
         }
-        .btn-editar {
-            background-color: #f39c12;
+        .btn-secondary {
+            background: #f39c12;
             color: white;
         }
-        .btn-editar:hover {
-            background-color: #e67e22;
+        .btn-secondary:hover {
+            background: #e67e22;
+        }
+        .solicitudes-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .solicitudes-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .solicitudes-table thead {
+            background: #e8f4f8;
+            border-bottom: 2px solid #1575a7;
+        }
+        .solicitudes-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            color: #0d5487;
+        }
+        .solicitudes-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .solicitudes-table tbody tr:hover {
+            background: #f5f8fa;
+        }
+        .solicitudes-table td {
+            padding: 12px;
+            color: #333;
         }
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 60px 20px;
             background: white;
-            border-radius: 8px;
+            border-radius: 12px;
             color: #95a5a6;
+            grid-column: 1 / -1;
         }
         .empty-state p {
             font-size: 18px;
-            margin-bottom: 15px;
+            margin: 0 0 20px 0;
         }
         .empty-state a {
-            display: inline-block;
-            margin-top: 10px;
             padding: 10px 20px;
-            background-color: #3498db;
+            background: #0d5487;
             color: white;
+            border-radius: 6px;
             text-decoration: none;
-            border-radius: 4px;
-            font-weight: 500;
+            font-weight: 600;
+            display: inline-block;
         }
         .empty-state a:hover {
-            background-color: #2980b9;
+            background: #021e3d;
         }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>📋 Mis Proyectos (Como Líder)</h1>
-    <div class="header-actions">
-        {% if request.user.is_authenticated and request.user.is_staff %}
-            <a href="{% url 'crear_proyecto' %}" class="btn-header btn-primary">➕ Crear Proyecto</a>
+<nav class="navbar">
+    <div class="logo">🚀 ForgeSkill</div>
+    <ul>
+        <li><a href="{% url 'dashboard' %}">📊 Dashboard</a></li>
+        <li><a href="{% url 'proyectos_list' %}">🔍 Proyectos</a></li>
+        <li><a href="{% url 'mis_proyectos' %}">📋 Mis Proyectos</a></li>
+        <li><a href="{% url 'perfil' %}">👤 Perfil</a></li>
+        {% if request.user.is_staff %}
+        <li><a href="{% url 'crear_proyecto' %}">➕ Crear Proyecto</a></li>
         {% endif %}
-        <a href="{% url 'dashboard' %}" class="btn-header btn-secondary">← Dashboard</a>
-        <a href="{% url 'logout' %}" class="btn-header btn-secondary">🚪 Cerrar Sesión</a>
-    </div>
-</div>
+        <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
+    </ul>
+</nav>
+
+<h1 class="page-title">Mis Proyectos</h1>
 
 <div class="container">
+
+    <h2 class="section-title">Proyectos en los que participas</h2>
 
     {% if proyectos %}
         <div class="proyectos-grid">
             {% for proyecto in proyectos %}
                 <div class="proyecto-card">
-                    <h3>{{ proyecto.nombre }}</h3>
-                    <div class="proyecto-meta">
-                        <span>👥 Participantes: <strong>{{ proyecto.participantes.count }}</strong></span>
-                        <span class="estado estado-{% if proyecto.estado == 'pendiente' %}pendiente{% elif proyecto.estado == 'aprobada' %}aprobada{% else %}rechazada{% endif %}">
-                            {{ proyecto.get_estado_display|default:proyecto.estado|upper }}
-                        </span>
-                        {% if proyecto.dificultad %}
-                            <span>📊 {{ proyecto.dificultad }}</span>
-                        {% endif %}
-                    </div>
-                    <div class="proyecto-descripcion">
-                        {{ proyecto.descripcion|linebreaksbr }}
-                    </div>
-                    <div class="proyecto-actions">
-                        {% if proyecto.id in usuario_participante %}
-                            <form method="post" action="{% url 'leave_project' proyecto.id %}" style="display:inline">{% csrf_token %}
-                                <button type="submit" class="btn-small btn-ver">🚪 Abandonar</button>
-                            </form>
-                        {% else %}
-                            <form method="post" action="{% url 'join_project' proyecto.id %}" style="display:inline">{% csrf_token %}
-                                <button type="submit" class="btn-small btn-ver">✓ Unirme</button>
-                            </form>
-                        {% endif %}
-
-                        <a href="{% url 'proyecto_detalle' proyecto.id %}" class="btn-small btn-ver">📄 Ver detalles</a>
-
-                        {# Enviar mensaje al líder #}
-                        {% if proyecto.lider and proyecto.lider != request.user %}
-                            <a href="{% url 'chat' proyecto.lider.id %}" class="btn-small btn-editar">✉️ Escribir al líder</a>
-                        {% endif %}
+                    <div class="proyecto-content">
+                        <h3 class="proyecto-title">{{ proyecto.nombre }}</h3>
+                        <div class="proyecto-meta">
+                            <span class="meta-badge">👥 {{ proyecto.participantes.count }} participantes</span>
+                            <span class="estado estado-{% if proyecto.estado == 'pendiente' %}pendiente{% elif proyecto.estado == 'aprobada' %}aprobada{% else %}rechazada{% endif %}">
+                                {{ proyecto.get_estado_display|default:proyecto.estado|upper }}
+                            </span>
+                            {% if proyecto.dificultad %}
+                                <span class="meta-badge">📊 {{ proyecto.dificultad }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="proyecto-descripcion">{{ proyecto.descripcion|truncatewords:20 }}</p>
+                        <div class="proyecto-actions">
+                            {% if proyecto.id in usuario_participante %}
+                                <form method="post" action="{% url 'leave_project' proyecto.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-small btn-secondary" onclick="return confirm('¿Abandonar este proyecto?');">🚪 Abandonar</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{% url 'join_project' proyecto.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-small btn-ver">✓ Unirme</button>
+                                </form>
+                            {% endif %}
+                            <a href="{% url 'proyecto_detalle' proyecto.id %}" class="btn-small btn-ver">📄 Ver detalles</a>
+                            {% if proyecto.lider and proyecto.lider != request.user %}
+                                <a href="{% url 'chat' proyecto.lider.id %}" class="btn-small btn-secondary">✉️ Contactar</a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             {% endfor %}
@@ -226,46 +286,46 @@
     {% else %}
         <div class="empty-state">
             <p>📭 No estás participando en ningún proyecto aún.</p>
-            {% if request.user.is_staff %}
-                <a href="{% url 'crear_proyecto' %}">Crear mi primer proyecto</a>
-            {% endif %}
+            <a href="{% url 'proyectos_list' %}">🔍 Ver proyectos disponibles</a>
         </div>
     {% endif %}
 
-    {# --- Sección de postulaciones del usuario --- #}
-    <div style="margin-top:30px;">
-        <h2>📝 Mis Postulaciones</h2>
-        {% load static %}
-        {% with solicitudes=solicitudes %}
-            {% if solicitudes %}
-                <div style="margin-top:12px;">
-                    <table style="width:100%; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
-                        <thead style="background:#f8f9fa; text-align:left;">
-                            <tr><th style="padding:10px">Proyecto</th><th style="padding:10px">Estado</th><th style="padding:10px">Acciones</th></tr>
-                        </thead>
-                        <tbody>
-                            {% for s in solicitudes %}
-                                <tr>
-                                    <td style="padding:10px">{{ s.proyecto.nombre }}</td>
-                                    <td style="padding:10px">{{ s.get_estado_display }}</td>
-                                    <td style="padding:10px">
-                                        <a href="{% url 'proyecto_detalle' s.proyecto.id %}" class="btn-small btn-ver">Ver</a>
-                                        {% if s.estado == 'pendiente' %}
-                                            <form method="post" action="{% url 'cancel_postulacion' s.proyecto.id %}" style="display:inline">{% csrf_token %}
-                                                <button type="submit" class="btn-small btn-editar" onclick="return confirm('¿Cancelar postulación?');">✖ Cancelar</button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <p style="color:#95a5a6; margin-top:12px">No tienes postulaciones pendientes.</p>
-            {% endif %}
-        {% endwith %}
-    </div>
+    {# --- SECCIÓN DE POSTULACIONES --- #}
+    {% if solicitudes %}
+        <h2 class="section-title">Mis Postulaciones</h2>
+        <div class="solicitudes-section">
+            <table class="solicitudes-table">
+                <thead>
+                    <tr>
+                        <th>Proyecto</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in solicitudes %}
+                        <tr>
+                            <td><strong>{{ s.proyecto.nombre }}</strong></td>
+                            <td>
+                                <span class="estado estado-{{ s.estado }}">
+                                    {{ s.get_estado_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'proyecto_detalle' s.proyecto.id %}" class="btn-small btn-ver">Ver</a>
+                                {% if s.estado == 'pendiente' %}
+                                    <form method="post" action="{% url 'cancel_postulacion' s.proyecto.id %}" style="display:inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-small btn-secondary" onclick="return confirm('¿Cancelar postulación?');">✖ Cancelar</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 
 </div>
 

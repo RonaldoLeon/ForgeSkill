@@ -23,7 +23,7 @@ class PerfilForm(forms.ModelForm):
 
     class Meta:
         model = Perfil
-        fields = ['foto', 'bio', 'area_trabajo', 'telefono', 'ciudad']
+        fields = ['foto', 'bio', 'area_trabajo', 'telefono', 'ciudad', 'nivel_estudio', 'idiomas']
         
 class ExperienciaForm(forms.ModelForm):
     class Meta:
@@ -58,11 +58,12 @@ from .models import Insignia, InsigniaOtorgada
 class InsigniaForm(forms.ModelForm):
     class Meta:
         model = Insignia
-        # El modelo `Insignia` sólo define `usuario`, `nombre` y `fecha`.
-        # Mostramos únicamente `nombre` en el formulario de creación/edición.
-        fields = ['nombre']
+        # Mostrar campos útiles para la creación de insignias
+        fields = ['nombre', 'descripcion', 'puntos', 'imagen']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'input-estilo', 'placeholder': 'Ej: Liderazgo'}),
+            'descripcion': forms.Textarea(attrs={'class': 'input-estilo', 'rows': 2, 'placeholder': 'Descripción breve'}),
+            'puntos': forms.NumberInput(attrs={'class': 'input-estilo', 'min': 0}),
         }
 
 class OtorgarInsigniaForm(forms.ModelForm):

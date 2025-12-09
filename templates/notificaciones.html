@@ -1,27 +1,614 @@
-{% extends 'usuario.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notificaciones - ForgeSkill</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f5f8fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #0d5487 0%, #021e3d 100%);
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            padding: 16px 24px;
+            margin: 0;
+        }
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar li {
+            margin: 0;
+        }
+        .navbar a {
+            color: white;
+            padding: 16px 18px;
+            display: block;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .page-title {
+            max-width: 1400px;
+            margin: 30px auto 0;
+            padding: 0 20px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #0d5487;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px 40px 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+        }
+        .sidebar {
+            height: fit-content;
+        }
+        .sidebar-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .sidebar-header {
+            background: linear-gradient(135deg, #0d5487 0%, #1575a7 100%);
+            color: white;
+            padding: 16px;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-new-chat {
+            background: white;
+            color: #0d5487;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .btn-new-chat:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .user-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .user-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        .user-item:hover {
+            background: #f0f7ff;
+        }
+        .user-item.active {
+            background: #e8f4f8;
+            border-left: 4px solid #0d5487;
+            padding-left: 12px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d5487, #1575a7);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-status {
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 600px;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #0d5487 0%, #1575a7 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .chat-header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .chat-header-info h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .chat-header-info p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fafbfc;
+        }
+        .message-group {
+            margin-bottom: 16px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .message {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: flex-end;
+            gap: 8px;
+        }
+        .message.sent {
+            justify-content: flex-end;
+        }
+        .message.received {
+            justify-content: flex-start;
+        }
+        .message-content {
+            max-width: 70%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .message.sent .message-content {
+            background: #0d5487;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.received .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+        .message-time {
+            font-size: 11px;
+            color: #999;
+        }
+        .chat-input-area {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+        }
+        .chat-form {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        .chat-form input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #d5dce0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s;
+        }
+        .chat-form input:focus {
+            outline: none;
+            border-color: #0d5487;
+            box-shadow: 0 0 0 3px rgba(13, 84, 135, 0.1);
+        }
+        .chat-form button {
+            background: #0d5487;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .chat-form button:hover {
+            background: #021e3d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 84, 135, 0.3);
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            text-align: center;
+        }
+        .empty-state p {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+        }
+        .empty-state small {
+            font-size: 13px;
+            color: #bbb;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #0d5487 0%, #1575a7 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .btn-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+        }
+        .modal-search {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .modal-search input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d5dce0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .modal-search input:focus {
+            outline: none;
+            border-color: #0d5487;
+            box-shadow: 0 0 0 3px rgba(13, 84, 135, 0.1);
+        }
+        .modal-users {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .modal-user-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-user-item:hover {
+            background: #f0f7ff;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .message-content {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
 
-{% block head %}
-    <title>Notificaciones</title>
-    <link rel="stylesheet" href="{% static 'notificaciones.css' %}">
-{% endblock %}
+<nav class="navbar">
+    <div class="logo">🚀 ForgeSkill</div>
+    <ul>
+        <li><a href="{% url 'dashboard' %}">📊 Dashboard</a></li>
+        <li><a href="{% url 'proyectos_list' %}">🔍 Proyectos</a></li>
+        <li><a href="{% url 'mis_proyectos' %}">📋 Mis Proyectos</a></li>
+        <li><a href="{% url 'perfil' %}">👤 Perfil</a></li>
+        {% if request.user.is_staff %}
+        <li><a href="{% url 'crear_proyecto' %}">➕ Crear Proyecto</a></li>
+        {% endif %}
+        <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
+    </ul>
+</nav>
 
-{% block content %}
+<h1 class="page-title">💬 Mensajes</h1>
 
-<h1 style="text-align:center;">Notificaciones</h1>
-
-<div class="card">
-    <h3>Chats Disponibles</h3>
-
-    {% for usuario in usuarios %}
-        <div class="user">
-            <a href="/chat/{{ usuario.id }}/">
-                💬 {{ usuario.username }}
-            </a>
+<div class="container">
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-header">
+                Conversaciones
+                <button class="btn-new-chat" onclick="openUserModal()">➕ Nuevo</button>
+            </div>
+            <div class="user-list" id="userList">
+                <!-- Se llena dinámicamente -->
+            </div>
         </div>
-    {% empty %}
-        <p>No hay usuarios para chatear.</p>
-    {% endfor %}
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="empty-state">
+            <p>💭 Selecciona una conversación</p>
+            <small>O inicia una nueva desde el botón "Nuevo"</small>
+        </div>
+    </div>
 </div>
 
-{% endblock %}
+<!-- Modal para seleccionar usuario -->
+<div class="modal" id="userModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Iniciar conversación</h2>
+            <button class="btn-close" onclick="closeUserModal()">✕</button>
+        </div>
+        <div class="modal-search">
+            <input type="text" id="searchInput" placeholder="🔍 Busca un usuario..." onkeyup="filterUsers()">
+        </div>
+        <div class="modal-users" id="modalUsersList">
+            <!-- Se llena dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<script>
+    let usuarios = {{ usuarios_json|safe }};
+    let currentUserId = {{ current_user_id }};
+    let selectedUserId = null;
+    let selectedUserData = null;
+
+    // Renderizar lista de usuarios en sidebar
+    function renderUserList() {
+        const userList = document.getElementById('userList');
+        if (usuarios.length === 0) {
+            userList.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">Sin conversaciones aún</div>';
+            return;
+        }
+
+        userList.innerHTML = usuarios.map(u => `
+            <div class="user-item ${selectedUserId === u.id ? 'active' : ''}" onclick="selectUser(${u.id})">
+                <div class="user-avatar">${u.username[0].toUpperCase()}</div>
+                <div class="user-info">
+                    <div class="user-name">${u.first_name ? u.first_name + ' ' + u.last_name : u.username}</div>
+                    <div class="user-status">@${u.username}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Obtener cookie CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Seleccionar usuario y cargar chat dentro del panel derecho (AJAX)
+    function selectUser(userId) {
+        selectedUserId = userId;
+        selectedUserData = usuarios.find(u => u.id === userId);
+        // Resaltar lista
+        renderUserList();
+        // Cerrar modal si está abierto
+        closeUserModal();
+        // Cargar chat por AJAX
+        fetchChat(userId);
+    }
+
+    // Fetch y render del panel de chat
+    function fetchChat(userId) {
+        const main = document.getElementById('mainContent');
+        main.innerHTML = '<div style="padding:30px;text-align:center;color:#999;">Cargando conversación…</div>';
+        fetch(`/chat/${userId}/?ajax=1`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            main.innerHTML = data.html;
+            attachChatFormHandler();
+            scrollToBottom();
+        })
+        .catch(err => {
+            main.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">No se pudo cargar la conversación.</div>';
+            console.error(err);
+        });
+    }
+
+    // Adjunta manejo del formulario de chat (envío via fetch)
+    function attachChatFormHandler() {
+        const form = document.querySelector('#mainContent form.chat-form');
+        if (!form) return;
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            const input = form.querySelector('input[name="mensaje"]');
+            const mensaje = input.value.trim();
+            if (!mensaje) return;
+
+            const fd = new FormData();
+            fd.append('mensaje', mensaje);
+
+            fetch(`/chat/${selectedUserId}/?ajax=1`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: fd
+            })
+            .then(r => r.json())
+            .then(data => {
+                // Reemplaza el panel por el HTML actualizado
+                document.getElementById('mainContent').innerHTML = data.html;
+                attachChatFormHandler();
+                scrollToBottom();
+            })
+            .catch(err => console.error(err));
+        });
+    }
+
+    // Scroll automático al final del chat
+    function scrollToBottom() {
+        const anchor = document.getElementById('scrollAnchor');
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Abrir modal
+    function openUserModal() {
+        document.getElementById('userModal').classList.add('show');
+        renderModalUsers();
+    }
+
+    // Cerrar modal
+    function closeUserModal() {
+        document.getElementById('userModal').classList.remove('show');
+    }
+
+    // Renderizar usuarios en modal
+    function renderModalUsers() {
+        const modalUsersList = document.getElementById('modalUsersList');
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        const filtered = usuarios.filter(u => 
+            u.username.toLowerCase().includes(searchTerm) ||
+            u.first_name.toLowerCase().includes(searchTerm) ||
+            u.last_name.toLowerCase().includes(searchTerm)
+        );
+
+        modalUsersList.innerHTML = filtered.map(u => `
+            <div class="modal-user-item" onclick="selectUser(${u.id})">
+                <div class="user-avatar">${u.username[0].toUpperCase()}</div>
+                <div class="user-info">
+                    <div class="user-name">${u.first_name ? u.first_name + ' ' + u.last_name : u.username}</div>
+                    <div class="user-status">@${u.username}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Filtrar usuarios
+    function filterUsers() {
+        renderModalUsers();
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('userModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeUserModal();
+        }
+    });
+
+    // Cargar lista inicial
+    renderUserList();
+</script>
+
+</body>
+</html>

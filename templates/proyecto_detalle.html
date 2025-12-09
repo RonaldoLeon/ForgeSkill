@@ -4,12 +4,160 @@
 
 {% block content %}
 
-<div class="card">
-    <h1>{{ proyecto.nombre }}</h1>
-    <p>{{ proyecto.descripcion }}</p>
-    <p><strong>Dificultad:</strong> {{ proyecto.dificultad }}</p>
+<div class="card" style="padding:28px;">
+    <div style="display:flex;gap:20px;align-items:flex-start;">
+        <div style="flex:0 0 220px;">
+            {% if proyecto.imagen %}
+                <img src="{{ proyecto.imagen.url }}" alt="{{ proyecto.nombre }}" style="width:100%;border-radius:10px;object-fit:cover;max-height:220px;">
+            {% else %}
+                <div style="width:100%;height:220px;border-radius:10px;background:linear-gradient(180deg,#eef7f8,#ffffff);display:flex;align-items:center;justify-content:center;color:#0d5470;font-weight:700">Sin imagen</div>
+            {% endif %}
+            <div style="margin-top:12px;">
+                <strong>Encargado:</strong>
+                <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
+                    {% if proyecto.lider.perfil.foto %}
+                        <img src="{{ proyecto.lider.perfil.foto.url }}" alt="{{ proyecto.lider.username }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover">
+                    {% endif %}
+                    <div>
+                        <div style="font-weight:700">{{ proyecto.lider.get_full_name|default:proyecto.lider.username }}</div>
+                        <div style="font-size:13px;color:#3f5f66">@{{ proyecto.lider.username }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <a class="btn" href="{% url 'postular' proyecto.id %}">Postularme</a>
+        <div style="flex:1;">
+            <h1 style="margin-top:0;margin-bottom:6px;color:var(--dark)">{{ proyecto.nombre }}</h1>
+            <p style="color:#345a62">{{ proyecto.descripcion|linebreaksbr }}</p>
+
+            <div style="margin-top:12px;display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+                <div><strong>Dificultad:</strong> {{ proyecto.dificultad }}</div>
+                <div><strong>Participantes:</strong> {{ participantes_count }}{% if proyecto.lider %} (Líder incluido){% endif %}</div>
+                <div>
+                    <strong>Límite:</strong>
+                    {% if proyecto.limite_miembros and proyecto.limite_miembros > 0 %}
+                        {{ proyecto.limite_miembros }} miembros
+                    {% else %}
+                        Sin límite
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="margin-top:18px;">
+                <strong>Progreso del Proyecto:</strong>
+                <div style="margin-top:8px;width:100%;background:rgba(23,41,63,0.06);height:20px;border-radius:12px;overflow:hidden">
+                    <div role="progressbar" aria-valuenow="{{ progreso_auto }}" aria-valuemin="0" aria-valuemax="100" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--dark));width:{{ progreso_auto }}%;transition:width 0.3s ease"></div>
+                </div>
+                <div style="font-size:13px;color:#274b53;margin-top:6px">{{ progreso_auto }}% completado ({{ tareas_completadas }} de {{ tareas_total }} actividades)</div>
+            </div>
+
+            <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+                {% if is_leader %}
+                    <a class="btn" href="{% url 'gestion_proyecto' proyecto.id %}">Gestionar</a>
+                {% endif %}
+                {% if request.user.is_staff %}
+                    <a class="btn" href="{% url 'lista_insignias' %}">⚙️ Gestionar Insignias</a>
+                {% endif %}
+            </div>
+
+            {% if is_leader %}
+                <form method="POST" action="{% url 'set_progreso_proyecto' proyecto.id %}" style="margin-top:18px;display:flex;gap:8px;align-items:center">
+                    {% csrf_token %}
+                    <label for="progreso_input" style="font-weight:600">Actualizar progreso manual</label>
+                    <input id="progreso_input" name="progreso" type="number" min="0" max="100" value="{{ proyecto.progreso }}" style="width:80px;padding:8px;border-radius:8px;border:1px solid rgba(23,41,63,0.08)">
+                    <button class="btn" type="submit">Guardar</button>
+                </form>
+            {% endif %}
+
+        </div>
+    </div>
 </div>
 
+<!-- Sección de Actividades/Tareas -->
+<div class="card" style="max-width:1100px;margin:28px auto">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+    <h3>📋 Actividades del Proyecto</h3>
+    {% if is_leader %}
+      <a class="btn" href="{% url 'crear_tarea_proyecto' proyecto.id %}" style="padding:8px 14px;font-size:14px">+ Nueva Actividad</a>
+    {% endif %}
+  </div>
+
+  {% if tareas.exists %}
+    <div style="display:flex;flex-direction:column;gap:10px">
+      {% for tarea in tareas %}
+        <div style="display:flex;gap:12px;align-items:center;padding:12px;border:1px solid rgba(0,0,0,0.06);border-radius:8px;background:{% if tarea.estado == 'completada' %}#e8f5e9{% else %}#fff{% endif %}">
+          <!-- Select para cambiar estado -->
+          <form method="POST" action="{% url 'toggle_tarea_estado' tarea.id %}" style="display:flex;gap:8px;align-items:center;flex:1;margin:0">
+            {% csrf_token %}
+            <select name="estado" onchange="this.form.submit()" style="padding:6px;border-radius:6px;border:1px solid #ccc;font-size:13px">
+              <option value="pendiente" {% if tarea.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+              <option value="en_progreso" {% if tarea.estado == 'en_progreso' %}selected{% endif %}>En Progreso</option>
+              <option value="completada" {% if tarea.estado == 'completada' %}selected{% endif %}>✓ Completada</option>
+            </select>
+          </form>
+          <div style="flex:1">
+            <div style="font-weight:700;color:#17293f">{{ tarea.titulo }}</div>
+            {% if tarea.asignado_a %}<div style="font-size:12px;color:#666">Asignado a: <strong>{{ tarea.asignado_a.get_full_name|default:tarea.asignado_a.username }}</strong></div>{% endif %}
+          </div>
+          {% if is_leader %}
+            <a href="{% url 'editar_tarea' tarea.id %}" style="font-size:12px;color:#00bcd4;text-decoration:none;padding:6px 10px">Editar</a>
+            <a href="{% url 'eliminar_tarea' tarea.id %}" onclick="return confirm('¿Eliminar esta actividad?')" style="font-size:12px;color:#f44336;text-decoration:none;padding:6px 10px">Eliminar</a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="text-align:center;padding:32px;color:#666">
+      <p>No hay actividades en este proyecto aún.</p>
+      {% if is_leader %}
+        <a class="btn" href="{% url 'crear_tarea_proyecto' proyecto.id %}">Crear primera actividad</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+<!-- Botón de Chat Grupal (visible para todos) -->
+<div style="max-width:1100px;margin:18px auto">
+  <a class="btn" href="{% url 'foro_proyecto' proyecto.id %}" style="display:inline-flex;gap:8px;align-items:center;padding:12px 20px;background:#7c3aed;color:white;text-decoration:none;border-radius:8px;font-weight:600">
+    💬 Chat del Equipo
+  </a>
+</div>
+ 
+<!-- Insignias: catálogo y otorgadas (visibles en la ficha del proyecto) -->
+        <div style="max-width:1100px;margin:28px auto;display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <div class="card">
+                <h3>🏆 Insignias disponibles</h3>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+                    {% for ins in insignias_catalogo %}
+                        <div style="width:180px;border:1px solid rgba(0,0,0,0.04);padding:10px;border-radius:8px;text-align:center;background:#fff">
+                            <div style="font-size:32px">{% if ins.imagen %}<img src="{{ ins.imagen.url }}" style="width:48px;height:48px;object-fit:cover">{% else %}🏅{% endif %}</div>
+                            <div style="font-weight:700;margin-top:8px">{{ ins.nombre }}</div>
+                            {% if ins.descripcion %}<div style="font-size:13px;color:#667">{{ ins.descripcion }}</div>{% endif %}
+                            <div style="margin-top:8px;color:#0d7">+{{ ins.puntos }} pts</div>
+                        </div>
+                    {% empty %}
+                        <div style="color:#666">No hay insignias definidas.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🏅 Insignias otorgadas a participantes</h3>
+                <div style="margin-top:12px">
+                    {% if insignias_otorgadas.exists %}
+                        <ul style="list-style:none;padding-left:0;margin:0">
+                            {% for io in insignias_otorgadas %}
+                                <li style="padding:8px 0;border-bottom:1px dashed rgba(0,0,0,0.04)">
+                                    <strong>{{ io.usuario.get_full_name|default:io.usuario.username }}</strong>
+                                    — <em style="color:#274b53">{{ io.insignia.nombre }}</em>
+                                    <div style="font-size:12px;color:#666">{{ io.fecha|date:"d/m/Y H:i" }}{% if io.motivo %} — {{ io.motivo|truncatechars:70 }}{% endif %}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div>No se han otorgado insignias a participantes de este proyecto.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 {% endblock %}

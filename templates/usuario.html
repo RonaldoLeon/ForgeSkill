@@ -3,21 +3,78 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Panel{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}ForgeSkill{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'colors.css' %}">
     <link rel="stylesheet" href="{% static 'usuario.css' %}">
+    <style>
+        .navbar {
+            background: linear-gradient(135deg, #0d5487 0%, #021e3d 100%);
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            padding: 16px 24px;
+            margin: 0;
+        }
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar li {
+            margin: 0;
+        }
+        .navbar a {
+            color: white;
+            padding: 16px 18px;
+            display: block;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            text-decoration: none;
+        }
+        .content {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .navbar ul {
+                flex-direction: column;
+                width: 100%;
+            }
+            .navbar a {
+                padding: 12px 16px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
     <!-- NAVBAR USUARIO -->
     <nav class="navbar">
-        <div class="logo">ForgeSkill</div>
+        <div class="logo">🚀 ForgeSkill</div>
         <ul>
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-            <li><a href="{% url 'proyectos_list' %}">Proyectos</a></li>
-            <li><a href="{% url 'mis_proyectos' %}">Mis Proyectos</a></li>
-            <li><a href="{% url 'notificaciones' %}">Notificaciones</a></li>
-            <li><a href="{% url 'perfil' %}">Perfil</a></li>
+            <li><a href="{% url 'dashboard' %}">📊 Dashboard</a></li>
+            <li><a href="{% url 'proyectos_list' %}">🎯 Proyectos</a></li>
+            <li><a href="{% url 'mis_proyectos' %}">📁 Mis Proyectos</a></li>
+            <li><a href="{% url 'notificaciones' %}">🔔 Notificaciones</a></li>
+            <li><a href="{% url 'perfil' %}">👤 Perfil</a></li>
         </ul>
     </nav>
 
@@ -25,6 +82,10 @@
         {% block content %}
         {% endblock %}
     </main>
+
+    <footer>
+        <p>&copy; 2025 ForgeSkill. Todos los derechos reservados.</p>
+    </footer>
 
 </body>
 </html>

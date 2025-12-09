@@ -32,6 +32,18 @@
     {% endfor %}
     </ul>
 
+    {% if perfil.nivel_estudio %}
+    <hr>
+    <h3>Nivel de Estudio</h3>
+    <p>{{ perfil.nivel_estudio|linebreaks }}</p>
+    {% endif %}
+
+    {% if perfil.idiomas %}
+    <hr>
+    <h3>Idiomas</h3>
+    <p>{{ perfil.idiomas|linebreaks }}</p>
+    {% endif %}
+
     <hr>
 
     <h3>Experiencia Acumulada</h3>

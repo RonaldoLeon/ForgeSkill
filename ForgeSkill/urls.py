@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from ForgeSkill.views import dashboard_view, proyectos_list, proyecto_detalle,mis_proyectos, perfil, chat, notificaciones, chats_list
+from ForgeSkill.views import dashboard_view, proyectos_list, proyecto_detalle,mis_proyectos, perfil, chat, notificaciones, chats_list, set_progreso_proyecto, toggle_tarea_estado
 from ForgeSkill.views import crear_proyecto, block_user, change_role, admin_delete_proyecto
 from ForgeSkill.views import approve_project, reject_project
 from ForgeSkill.views import join_project, leave_project
@@ -36,6 +36,8 @@ urlpatterns = [
     path('dashboard/', dashboard_view, name='dashboard'),
     path('proyectos_list/', proyectos_list, name='proyectos_list'),
     path('proyecto_detalle/<int:proyecto_id>/', proyecto_detalle, name='proyecto_detalle'),
+    path('proyecto/<int:proyecto_id>/set_progreso/', set_progreso_proyecto, name='set_progreso_proyecto'),
+    path('tarea/<int:tarea_id>/toggle_estado/', toggle_tarea_estado, name='toggle_tarea_estado'),
     path('mis_proyectos.html/', mis_proyectos, name= 'mis_proyectos'),
     path("perfil/", perfil, name="perfil"),
     path("perfil/experiencia/agregar/", agregar_experiencia, name="agregar_experiencia"),
@@ -52,6 +54,7 @@ urlpatterns = [
     path('mentor/insignias/', otorgar_insignia, name='otorgar_insignia'),
     # admin_panel ya está mapeado a la vista personalizada `admin_panel` arriba
     path('mentor/tarea/crear/<int:proyecto_id>/', crear_tarea, name='crear_tarea'),
+    path('proyecto/<int:proyecto_id>/tarea/crear/', crear_tarea, name='crear_tarea_proyecto'),
     path('mentor/tarea/editar/<int:tarea_id>/', editar_tarea, name='editar_tarea'),
     path('mentor/tarea/eliminar/<int:tarea_id>/', eliminar_tarea, name='eliminar_tarea'),
     path('proyecto/<int:proyecto_id>/examenes/', lista_examenes, name='lista_examenes'),

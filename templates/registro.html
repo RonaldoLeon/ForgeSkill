@@ -4,121 +4,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Únete a nosotros</title>
-    <link rel="stylesheet" href="{% static '..//static/registro.css' %}">
+    <title>Registro - ForgeSkill</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #1db8d4 0%, #17a2b8 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .register-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            max-width: 480px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .register-header {
+            background: linear-gradient(135deg, #1db8d4 0%, #17a2b8 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .register-header-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 16px;
+        }
+        .register-header h1 {
+            font-size: 24px;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+        .register-header p {
+            font-size: 13px;
+            opacity: 0.95;
+            margin: 0;
+        }
+        .register-form-section {
+            padding: 40px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s;
+            background: #fafbfc;
+        }
+        .form-group input:focus {
+            outline: none;
+            background: white;
+            border-color: #1db8d4;
+            box-shadow: 0 0 0 3px rgba(29, 184, 212, 0.1);
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 40px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-size: 18px;
+            padding: 0;
+            transition: color 0.3s;
+        }
+        .password-toggle:hover {
+            color: #1db8d4;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .checkbox-group {
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: normal;
+            color: #666;
+            text-transform: none;
+            letter-spacing: normal;
+            margin: 8px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            padding: 0;
+            margin: 0;
+        }
+        .checkbox-group a {
+            color: #1db8d4;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+            font-size: 13px;
+        }
+        .message.error {
+            background: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+        .message.success {
+            background: #d4edda;
+            border-color: #27ae60;
+            color: #155724;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1db8d4 0%, #17a2b8 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(29, 184, 212, 0.3);
+        }
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+        .register-footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        .register-footer p {
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+        }
+        .register-footer a {
+            color: #1db8d4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .register-footer a:hover {
+            color: #0d7a91;
+        }
+        @media (max-width: 480px) {
+            .register-container {
+                border-radius: 0;
+            }
+            .register-form-section {
+                padding: 30px 20px;
+            }
+            .register-header {
+                padding: 30px 20px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="background-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-        </div>
-        
-        <div class="register-card">
-            <div class="card-header">
-                <div class="logo">
-                    <div class="logo-circle"></div>
-                    <h1>Bienvenido</h1>
+
+<div class="register-container">
+    <div class="register-header">
+        <div class="register-header-icon">●</div>
+        <h1>Bienvenido</h1>
+        <p>Crea tu cuenta y únete a nuestra comunidad</p>
+    </div>
+
+    <div class="register-form-section">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
                 </div>
-                <p class="subtitle">Crea tu cuenta y únete a nuestra comunidad</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">Nombre</label>
+                    <input type="text" id="firstName" name="firstName" placeholder="Nombre" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Apellido</label>
+                    <input type="text" id="lastName" name="lastName" placeholder="Apellido" required>
+                </div>
             </div>
             
-            <form method="POST" action="">
-                {% csrf_token %}
-                {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                <div class="form-group">
-                    <div class="input-container">
-                        <input type="text" id="firstName" name="firstName" required>
-                        <label for="firstName">Nombre</label>
-                        <div class="input-line"></div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <div class="input-container">
-                        <input type="text" id="lastName" name="lastName" required>
-                        <label for="lastName">Apellido</label>
-                        <div class="input-line"></div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <div class="input-container">
-                        <input type="email" id="email" name="email" required>
-                        <label for="email">Correo electrónico</label>
-                        <div class="input-line"></div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <div class="input-container">
-                        <input type="password" id="password" name="password" required>
-                        <label for="password">Contraseña</label>
-                        <div class="input-line"></div>
-                        <button type="button" class="password-toggle" id="togglePassword">
-                            <span class="eye-icon"></span>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <div class="input-container">
-                        <input type="password" id="confirmPassword" name="confirmPassword" required>
-                        <label for="confirmPassword">Confirmar contraseña</label>
-                        <div class="input-line"></div>
-                    </div>
-                </div>
-                
-                <div class="checkbox-group">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="terms" name="terms" required>
-                        <span class="checkmark"></span>
-                        Acepto los&nbsp;<a href="#" class="link"> términos y condiciones</a>
-                    </label>
-                </div>
-                
-                <div class="checkbox-group">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="newsletter" name="newsletter">
-                        <span class="checkmark"></span>
-                        Quiero recibir noticias y actualizaciones
-                    </label>
-                </div>
-                
-                <button type="submit" class="submit-btn">
-                    <span class="btn-text">Crear cuenta</span>
-                    <div class="btn-loader"></div>
-                </button>
-                
-                <div class="divider">
-                    <span>o</span>
-                </div>
-                
-                <div class="social-buttons">
-                    <button type="button" class="social-btn google-btn">
-                        <div class="social-icon">G</div>
-                        Continuar con Google
-                    </button>
-                    <button type="button" class="social-btn facebook-btn">
-                        <div class="social-icon">f</div>
-                        Continuar con Facebook
-                    </button>
-                </div>
-                
-                <p class="login-link">
-                    ¿Ya tienes cuenta? <a href="{% url 'login' %}" class="link">Inicia sesión</a>
-                </p>
-            </form>
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" name="username" placeholder="Tu nombre de usuario" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="tu@ejemplo.com" required>
+            </div>
+            
+            <div class="form-group password-container">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Tu contraseña" required>
+                <button type="button" id="togglePassword" class="password-toggle">👁️</button>
+            </div>
+            
+            <div class="form-group password-container">
+                <label for="confirmPassword">Confirmar contraseña</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirma tu contraseña" required>
+                <button type="button" id="toggleConfirmPassword" class="password-toggle">👁️</button>
+            </div>
+            
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" name="terms" required>
+                    Acepto los <a href="#">términos y condiciones</a>
+                </label>
+                <label>
+                    <input type="checkbox" name="newsletter">
+                    Quiero recibir noticias y actualizaciones
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-submit">Crear cuenta</button>
+        </form>
+
+        <div class="register-footer">
+            <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a></p>
         </div>
     </div>
+</div>
+
+<script>
+    document.getElementById('togglePassword')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        const pwd = document.getElementById('password');
+        pwd.type = pwd.type === 'password' ? 'text' : 'password';
+    });
     
-    <script src="{% static '..//static/registro.js' %}"></script>
+    document.getElementById('toggleConfirmPassword')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        const pwd = document.getElementById('confirmPassword');
+        pwd.type = pwd.type === 'password' ? 'text' : 'password';
+    });
+</script>
+
 </body>
 </html>

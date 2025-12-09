@@ -17,6 +17,8 @@ class Perfil(models.Model):
     area_trabajo = models.CharField(max_length=200, blank=True, null=True)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     ciudad = models.CharField(max_length=100, blank=True, null=True)
+    nivel_estudio = models.TextField(blank=True, null=True, help_text="Ej: Licenciatura en Ingeniería, Diplomado en Python")
+    idiomas = models.TextField(blank=True, null=True, help_text="Ej: Español (Nativo), Inglés (B2)")
 
     # AQUI FALTABA
     conocimientos = models.ManyToManyField("Conocimiento", blank=True)
@@ -49,6 +51,10 @@ class Proyecto(models.Model):
     dificultad = models.CharField(max_length=50, blank=True, null=True)
     imagen = models.ImageField(upload_to='proyectos/', blank=True, null=True)
     participantes = models.ManyToManyField(User, related_name="proyectos_participante", blank=True)
+    # Límite de miembros que permite el proyecto (0 = sin límite)
+    limite_miembros = models.PositiveIntegerField(default=0)
+    # Porcentaje de avance del proyecto (0-100)
+    progreso = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.nombre
@@ -71,8 +77,12 @@ class Tarea(models.Model):
 
 # --- INSIGNIAS Y GAMIFICACIÓN ---
 class Insignia(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    # usuario: opcionalmente quién creó la insignia
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)
+    puntos = models.PositiveIntegerField(default=0)
+    imagen = models.ImageField(upload_to='insignias/', blank=True, null=True)
     fecha = models.DateField(auto_now_add=True)
     
 class InsigniaOtorgada(models.Model):
