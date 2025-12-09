@@ -6,10 +6,7 @@ __pycache__/
 env/
 venv/
 
-# Django
-*.sqlite3
-/static/
-/media/
+
 
 # Configuración
 *.env
