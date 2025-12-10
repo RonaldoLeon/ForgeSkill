@@ -19,9 +19,7 @@ class Perfil(models.Model):
     ciudad = models.CharField(max_length=100, blank=True, null=True)
     nivel_estudio = models.TextField(blank=True, null=True, help_text="Ej: Licenciatura en Ingeniería, Diplomado en Python")
     idiomas = models.TextField(blank=True, null=True, help_text="Ej: Español (Nativo), Inglés (B2)")
-
-    # AQUI FALTABA
-    conocimientos = models.ManyToManyField("Conocimiento", blank=True)
+    conocimientos = models.TextField(blank=True, null=True, help_text="Ej: Python, JavaScript, Django, React, SQL")
 
     def __str__(self):
         return self.user.username
@@ -55,6 +53,9 @@ class Proyecto(models.Model):
     limite_miembros = models.PositiveIntegerField(default=0)
     # Porcentaje de avance del proyecto (0-100)
     progreso = models.PositiveIntegerField(default=0)
+    # Nuevos campos: habilidades y lenguajes requeridos
+    habilidades_requeridas = models.TextField(blank=True, null=True, help_text="Ej: Liderazgo, Comunicación, Pensamiento crítico")
+    lenguajes_programacion = models.TextField(blank=True, null=True, help_text="Ej: Python, JavaScript, SQL")
 
     def __str__(self):
         return self.nombre
@@ -69,11 +70,47 @@ class Solicitud(models.Model):
 # --- GESTIÓN DE TAREAS ---
 class Tarea(models.Model):
     ESTADOS = [('pendiente', 'Pendiente'), ('en_progreso', 'En Progreso'), ('completada', 'Completada')]
+    ESTADOS_RETRASO = [('a_tiempo', 'A tiempo'), ('en_retraso', 'En retraso'), ('entregado_tarde', 'Entregado tarde')]
     
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True, null=True, help_text="Descripción detallada de la actividad")
     asignado_a = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
+    archivo_evidencia = models.FileField(upload_to='evidencias_tareas/', blank=True, null=True, help_text="PDF, imagen o archivo comprimido como evidencia")
+    completado_por = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='tareas_completadas')
+    fecha_completado = models.DateTimeField(null=True, blank=True)
+    # Nuevos campos: fecha de entrega y estado de retraso
+    fecha_asignacion = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    fecha_entrega = models.DateTimeField(null=True, blank=True, help_text="Fecha y hora límite de entrega")
+    estado_retraso = models.CharField(max_length=20, choices=ESTADOS_RETRASO, default='a_tiempo')
+    
+    def get_dias_restantes(self):
+        """Retorna los días restantes hasta la fecha de entrega"""
+        from django.utils import timezone
+        ahora = timezone.now()
+        if self.estado == 'completada':
+            return None
+        if not self.fecha_entrega:
+            return None
+        dias = (self.fecha_entrega - ahora).days
+        return max(dias, 0)
+    
+    def get_estado_visual(self):
+        """Retorna el estado visual: a_tiempo, en_retraso, entregado_tarde"""
+        from django.utils import timezone
+        ahora = timezone.now()
+        
+        if self.estado == 'completada':
+            # Si fue entregado después de la fecha
+            if self.fecha_completado and self.fecha_entrega and self.fecha_completado > self.fecha_entrega:
+                return 'entregado_tarde'
+            return 'a_tiempo'
+        else:
+            # Si la fecha ya pasó pero no está completada
+            if self.fecha_entrega and ahora > self.fecha_entrega:
+                return 'en_retraso'
+            return 'a_tiempo'
 
 # --- INSIGNIAS Y GAMIFICACIÓN ---
 class Insignia(models.Model):

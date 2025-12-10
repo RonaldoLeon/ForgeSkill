@@ -2,30 +2,42 @@
 {% block title %}{{ titulo }}{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 500px; margin: 40px auto;">
+<div class="card" style="max-width: 600px; margin: 40px auto;">
     <h2 style="text-align: center; color: #00BCD4;">{{ titulo }}</h2>
     
     <form method="POST">
         {% csrf_token %}
         
         <div style="margin-bottom: 15px;">
-            <label>Título de la tarea</label>
+            <label style="font-weight:600;color:#17293f">Título de la actividad *</label>
             {{ form.titulo }}
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label>Asignar a:</label>
+            <label style="font-weight:600;color:#17293f">Descripción *</label>
+            <small style="color:#666;display:block;margin-bottom:5px">Describe los detalles de la actividad que deben completar</small>
+            {{ form.descripcion }}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight:600;color:#17293f">Asignar a</label>
             {{ form.asignado_a }}
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label>Estado actual:</label>
+            <label style="font-weight:600;color:#17293f">Fecha de entrega *</label>
+            <small style="color:#666;display:block;margin-bottom:5px">Establece la fecha y hora límite para completar la actividad</small>
+            {{ form.fecha_entrega }}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight:600;color:#17293f">Estado inicial</label>
             {{ form.estado }}
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button type="submit" class="btn" style="flex: 1;">Guardar</button>
-            <a href="javascript:history.back()" class="btn" style="background: #999; flex: 1; text-align: center;">Cancelar</a>
+            <button type="submit" class="btn" style="flex: 1;background:#17a2b8">Guardar actividad</button>
+            <a href="javascript:history.back()" class="btn" style="background: #6c757d; flex: 1; text-align: center;text-decoration:none">Cancelar</a>
         </div>
     </form>
 </div>
@@ -37,6 +49,8 @@
         border: 1px solid #ddd;
         border-radius: 6px;
         margin-top: 5px;
+        font-family: inherit;
+        font-size: 14px;
     }
 </style>
 {% endblock %}

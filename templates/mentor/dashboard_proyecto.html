@@ -15,28 +15,43 @@
     <div class="columna">
         <div class="card">
             <h3>👥 Solicitudes</h3>
-            <table class="tabla-simple">
-                {% for sol in solicitudes %}
-                <tr>
-                    <td><a href="{% url 'public_profile_username' sol.usuario.username %}">{{ sol.usuario.get_full_name|default:sol.usuario.username }}</a></td>
-                    <td>{{ sol.get_estado_display }}</td>
-                    <td>
+            {% if solicitudes.exists %}
+            <div style="display:flex;flex-direction:column;gap:12px">
+            {% for sol in solicitudes %}
+                <div style="padding:12px;border:1px solid rgba(0,0,0,0.06);border-radius:8px;background:#fff">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                        <div>
+                            <div style="font-weight:700"><a href="{% url 'public_profile_username' sol.usuario.username %}">{{ sol.usuario.get_full_name|default:sol.usuario.username }}</a></div>
+                            <div style="font-size:13px;color:#666;margin-top:4px">@{{ sol.usuario.username }}</div>
+                            
+                            {% if sol.usuario.perfil.conocimientos %}
+                            <div style="font-size:12px;color:#555;margin-top:6px">
+                                <strong>Conocimientos:</strong> {{ sol.usuario.perfil.conocimientos }}
+                            </div>
+                            {% endif %}
+                            
+                            <div style="margin-top:8px;font-size:12px;color:{% if sol.estado == 'aprobada' %}#4caf50{% elif sol.estado == 'rechazada' %}#f44336{% else %}#ff9800{% endif %};font-weight:600">
+                                {{ sol.get_estado_display }}
+                            </div>
+                        </div>
+                        
                         {% if sol.estado == 'pendiente' %}
-                            <form method="post" action="{% url 'approve_solicitud' sol.id %}" style="display:inline">{% csrf_token %}
-                                <button type="submit" class="btn-small btn-success" onclick="return confirm('¿Aprobar esta postulación?');">✓ Aprobar</button>
+                        <div style="display:flex;gap:6px;flex-shrink:0">
+                            <form method="post" action="{% url 'approve_solicitud' sol.id %}" style="margin:0">{% csrf_token %}
+                                <button type="submit" style="padding:6px 12px;background:#4caf50;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600" onclick="return confirm('¿Aprobar?');">✓ Aprobar</button>
                             </form>
-                            <form method="post" action="{% url 'reject_solicitud' sol.id %}" style="display:inline">{% csrf_token %}
-                                <button type="submit" class="btn-small btn-danger" onclick="return confirm('¿Rechazar esta postulación?');">✗ Rechazar</button>
+                            <form method="post" action="{% url 'reject_solicitud' sol.id %}" style="margin:0">{% csrf_token %}
+                                <button type="submit" style="padding:6px 12px;background:#f44336;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600" onclick="return confirm('¿Rechazar?');">✗ Rechazar</button>
                             </form>
-                        {% else %}
-                            <span style="font-size:13px;color:#888;">{{ sol.get_estado_display }}</span>
+                        </div>
                         {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="3">No hay solicitudes.</td></tr>
-                {% endfor %}
-            </table>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:#666;text-align:center;padding:20px">No hay solicitudes pendientes.</p>
+            {% endif %}
         </div>
 
         <div class="card" style="margin-top:20px;">
@@ -52,12 +67,13 @@
 
     <div class="columna" style="flex: 2;">
         <div class="card">
-            <div style="display:flex; justify-content:space-between;">
+            <div style="display:flex; justify-content:space-between;align-items:center;">
                 <h3>📋 Tablero de Tareas</h3>
-                <button class="btn">+ Nueva Tarea</button>
+                <a href="{% url 'crear_tarea_proyecto' proyecto.id %}" class="btn" style="padding:8px 14px;font-size:14px">+ Nueva Tarea</a>
             </div>
             
-            <table class="tabla-completa">
+            {% if tareas.exists %}
+            <table class="tabla-completa" style="margin-top:12px">
                 <thead>
                     <tr>
                         <th>Tarea</th>
@@ -70,15 +86,18 @@
                     {% for t in tareas %}
                     <tr>
                         <td>{{ t.titulo }}</td>
-                        <td>{{ t.asignado }}</td>
+                        <td>{% if t.asignado_a %}<a href="{% url 'public_profile_username' t.asignado_a.username %}">{{ t.asignado_a.get_full_name|default:t.asignado_a.username }}</a>{% else %}<span style="color:#999">Sin asignar</span>{% endif %}</td>
                         <td>
-                            <span class="badge {{ t.estado }}">{{ t.estado }}</span>
+                            <span style="padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600;background:{% if t.estado == 'completada' %}#c8e6c9{% elif t.estado == 'en_progreso' %}#fff9c4{% else %}#ffccbc{% endif %};color:{% if t.estado == 'completada' %}#2e7d32{% elif t.estado == 'en_progreso' %}#f57f17{% else %}#d84315{% endif %}">{{ t.get_estado_display }}</span>
                         </td>
-                        <td><button class="btn-small">Editar</button></td>
+                        <td><a href="{% url 'editar_tarea' t.id %}" style="padding:4px 8px;background:#00bcd4;color:white;text-decoration:none;border-radius:4px;font-size:12px;font-weight:600">Editar</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+            <p style="color:#666;text-align:center;padding:20px;margin-top:12px">No hay tareas en este proyecto.</p>
+            {% endif %}
         </div>
     </div>
 </div>

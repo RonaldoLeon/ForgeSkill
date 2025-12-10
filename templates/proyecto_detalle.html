@@ -44,6 +44,17 @@
                 </div>
             </div>
 
+            {% if proyecto.habilidades_requeridas or proyecto.lenguajes_programacion %}
+            <div style="margin-top:12px;padding:12px;background:#f5f9fc;border-left:4px solid var(--accent);border-radius:4px">
+                {% if proyecto.habilidades_requeridas %}
+                <div><strong>Habilidades requeridas:</strong> {{ proyecto.habilidades_requeridas }}</div>
+                {% endif %}
+                {% if proyecto.lenguajes_programacion %}
+                <div style="margin-top:4px"><strong>Lenguajes de programación:</strong> {{ proyecto.lenguajes_programacion }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+
             <div style="margin-top:18px;">
                 <strong>Progreso del Proyecto:</strong>
                 <div style="margin-top:8px;width:100%;background:rgba(23,41,63,0.06);height:20px;border-radius:12px;overflow:hidden">
@@ -86,25 +97,90 @@
   {% if tareas.exists %}
     <div style="display:flex;flex-direction:column;gap:10px">
       {% for tarea in tareas %}
-        <div style="display:flex;gap:12px;align-items:center;padding:12px;border:1px solid rgba(0,0,0,0.06);border-radius:8px;background:{% if tarea.estado == 'completada' %}#e8f5e9{% else %}#fff{% endif %}">
-          <!-- Select para cambiar estado -->
-          <form method="POST" action="{% url 'toggle_tarea_estado' tarea.id %}" style="display:flex;gap:8px;align-items:center;flex:1;margin:0">
-            {% csrf_token %}
-            <select name="estado" onchange="this.form.submit()" style="padding:6px;border-radius:6px;border:1px solid #ccc;font-size:13px">
-              <option value="pendiente" {% if tarea.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
-              <option value="en_progreso" {% if tarea.estado == 'en_progreso' %}selected{% endif %}>En Progreso</option>
-              <option value="completada" {% if tarea.estado == 'completada' %}selected{% endif %}>✓ Completada</option>
-            </select>
-          </form>
-          <div style="flex:1">
-            <div style="font-weight:700;color:#17293f">{{ tarea.titulo }}</div>
-            {% if tarea.asignado_a %}<div style="font-size:12px;color:#666">Asignado a: <strong><a href="{% url 'public_profile_username' tarea.asignado_a.username %}">{{ tarea.asignado_a.get_full_name|default:tarea.asignado_a.username }}</a></strong></div>{% endif %}
+        {% with estado_visual=tarea.get_estado_visual %}
+        <div style="padding:12px;border:2px solid {% if estado_visual == 'en_retraso' %}#f44336{% elif estado_visual == 'entregado_tarde' %}#ff9800{% else %}#e0e0e0{% endif %};border-radius:8px;background:{% if tarea.estado == 'completada' %}{% if estado_visual == 'entregado_tarde' %}#fff3e0{% else %}#e8f5e9{% endif %}{% elif estado_visual == 'en_retraso' %}#ffebee{% else %}#fff{% endif %}">
+          <!-- Encabezado: estado, título y badge de retraso -->
+          <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:8px">
+            <form method="POST" action="{% url 'toggle_tarea_estado' tarea.id %}" enctype="multipart/form-data" style="margin:0;flex-shrink:0">
+              {% csrf_token %}
+              {% if tarea.estado == 'completada' %}
+                <select name="estado" disabled style="padding:6px;border-radius:6px;border:1px solid #4caf50;background:#4caf50;color:white;font-weight:600;font-size:12px">
+                  <option selected>✓ Completada</option>
+                </select>
+              {% else %}
+                <select name="estado" onchange="handleTareaEstadoChange(this)" style="padding:6px;border-radius:6px;border:1px solid #ccc;font-size:13px">
+                  <option value="pendiente" {% if tarea.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                  <option value="en_progreso" {% if tarea.estado == 'en_progreso' %}selected{% endif %}>En Progreso</option>
+                  <option value="completada">✓ Completada</option>
+                </select>
+              {% endif %}
+              <!-- Input oculto para archivos (aparece solo cuando se selecciona "completada") -->
+              <input type="file" id="archivo_{{ tarea.id }}" name="archivo_evidencia" accept=".pdf,.jpg,.jpeg,.png,.zip,.rar" style="display:none;" data-tarea-id="{{ tarea.id }}">
+            </form>
+            <div style="flex:1">
+              <div style="display:flex;gap:8px;align-items:center">
+                <div style="font-weight:700;color:#17293f;font-size:15px">{{ tarea.titulo }}</div>
+                {% if estado_visual == 'en_retraso' %}
+                  <span style="background:#f44336;color:white;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">🚨 EN RETRASO</span>
+                {% elif estado_visual == 'entregado_tarde' %}
+                  <span style="background:#ff9800;color:white;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">⚠️ ENTREGADO TARDE</span>
+                {% endif %}
+              </div>
+              {% if tarea.descripcion %}
+              <div style="font-size:13px;color:#555;margin-top:4px">{{ tarea.descripcion }}</div>
+              {% endif %}
+            </div>
+            {% if is_leader %}
+              <div style="display:flex;gap:6px;flex-shrink:0">
+                <a href="{% url 'editar_tarea' tarea.id %}" style="font-size:12px;color:#00bcd4;text-decoration:none;padding:4px 8px;border:1px solid #00bcd4;border-radius:4px">Editar</a>
+                <a href="{% url 'eliminar_tarea' tarea.id %}" onclick="return confirm('¿Eliminar?')" style="font-size:12px;color:#f44336;text-decoration:none;padding:4px 8px;border:1px solid #f44336;border-radius:4px">Eliminar</a>
+              </div>
+            {% endif %}
           </div>
-          {% if is_leader %}
-            <a href="{% url 'editar_tarea' tarea.id %}" style="font-size:12px;color:#00bcd4;text-decoration:none;padding:6px 10px">Editar</a>
-            <a href="{% url 'eliminar_tarea' tarea.id %}" onclick="return confirm('¿Eliminar esta actividad?')" style="font-size:12px;color:#f44336;text-decoration:none;padding:6px 10px">Eliminar</a>
-          {% endif %}
+
+          <!-- Información: asignación, entrega, completado, evidencia -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;font-size:12px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.08)">
+            <!-- Asignación -->
+            {% if tarea.asignado_a %}
+            <div style="background:rgba(0,0,0,0.02);padding:8px;border-radius:6px">
+              <div style="font-weight:600;color:#17293f;margin-bottom:2px">📌 Asignado a</div>
+              <a href="{% url 'public_profile_username' tarea.asignado_a.username %}" style="color:#00bcd4;text-decoration:none">{{ tarea.asignado_a.get_full_name|default:tarea.asignado_a.username }}</a>
+              <div style="font-size:11px;color:#999;margin-top:2px">{{ tarea.fecha_asignacion|date:"d/m/Y H:i" }}</div>
+            </div>
+            {% endif %}
+            
+            <!-- Fecha de entrega -->
+            <div style="background:rgba(0,0,0,0.02);padding:8px;border-radius:6px;border-left:3px solid {% if estado_visual == 'en_retraso' %}#f44336{% elif estado_visual == 'entregado_tarde' %}#ff9800{% else %}#4caf50{% endif %}">
+              <div style="font-weight:600;color:#17293f;margin-bottom:2px">📅 Fecha de entrega</div>
+              <div style="color:{% if estado_visual == 'en_retraso' %}#f44336{% elif estado_visual == 'entregado_tarde' %}#ff9800{% else %}#333{% endif %};font-weight:600">
+                {{ tarea.fecha_entrega|date:"d/m/Y H:i" }}
+              </div>
+              {% if tarea.estado != 'completada' and estado_visual == 'a_tiempo' %}
+                <div style="font-size:11px;color:#4caf50;margin-top:2px">⏱️ {{ tarea.get_dias_restantes }} días restantes</div>
+              {% endif %}
+            </div>
+            
+            <!-- Entrega -->
+            {% if tarea.estado == 'completada' and tarea.completado_por %}
+            <div style="background:rgba(76,175,80,0.08);padding:8px;border-radius:6px;border-left:3px solid #4caf50">
+              <div style="font-weight:600;color:#17293f;margin-bottom:2px">✓ Entregado por</div>
+              <a href="{% url 'public_profile_username' tarea.completado_por.username %}" style="color:#4caf50;text-decoration:none;font-weight:600">{{ tarea.completado_por.get_full_name|default:tarea.completado_por.username }}</a>
+              <div style="font-size:11px;color:#999;margin-top:2px">{{ tarea.fecha_completado|date:"d/m/Y H:i" }}</div>
+            </div>
+            {% endif %}
+            
+            <!-- Evidencia -->
+            {% if tarea.estado == 'completada' and tarea.archivo_evidencia %}
+            <div style="background:rgba(0,150,136,0.08);padding:8px;border-radius:6px;border-left:3px solid #009688">
+              <div style="font-weight:600;color:#17293f;margin-bottom:2px">📎 Evidencia</div>
+              <a href="{{ tarea.archivo_evidencia.url }}" target="_blank" style="color:#009688;text-decoration:none;font-weight:600;display:inline-flex;gap:4px;align-items:center">
+                📥 Ver archivo
+              </a>
+            </div>
+            {% endif %}
+          </div>
         </div>
+        {% endwith %}
       {% endfor %}
     </div>
   {% else %}
@@ -115,6 +191,31 @@
       {% endif %}
     </div>
   {% endif %}
+
+  <!-- Script para manejar la carga de archivo cuando se marca como completada -->
+  <script>
+    function handleTareaEstadoChange(selectElement) {
+      if (selectElement.value === 'completada') {
+        // Extraer el ID de la tarea del atributo data del form
+        const form = selectElement.closest('form');
+        const fileInput = form.querySelector('input[type="file"]');
+        fileInput.click();
+        
+        // Cuando se selecciona un archivo, enviar el form
+        fileInput.addEventListener('change', function() {
+          if (this.files.length > 0) {
+            form.submit();
+          } else {
+            // Si cancela, resetear el select
+            selectElement.value = selectElement.querySelector('option[selected]').value || 'pendiente';
+          }
+        }, { once: true });
+      } else {
+        // Para otros estados, simplemente enviar el form
+        selectElement.closest('form').submit();
+      }
+    }
+  </script>
 </div>
 
 <!-- Botón de Chat Grupal (visible para todos) -->

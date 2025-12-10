@@ -15,15 +15,12 @@ class ProyectoForm(forms.ModelForm):
         }
 
 class PerfilForm(forms.ModelForm):
-    conocimientos = forms.ModelMultipleChoiceField(
-        queryset=Conocimiento.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
-
     class Meta:
         model = Perfil
-        fields = ['foto', 'bio', 'area_trabajo', 'telefono', 'ciudad', 'nivel_estudio', 'idiomas']
+        fields = ['foto', 'bio', 'area_trabajo', 'telefono', 'ciudad', 'nivel_estudio', 'idiomas', 'conocimientos']
+        widgets = {
+            'conocimientos': forms.Textarea(attrs={'class': 'input-estilo', 'rows': 3, 'placeholder': 'Ej: Python, JavaScript, Django, React, SQL'})
+        }
         
 class ExperienciaForm(forms.ModelForm):
     class Meta:
@@ -45,10 +42,12 @@ class TareaForm(forms.ModelForm):
 
     class Meta:
         model = Tarea
-        fields = ['titulo', 'asignado_a', 'estado']
+        fields = ['titulo', 'descripcion', 'asignado_a', 'fecha_entrega', 'estado']
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'input-estilo', 'placeholder': 'Ej: Diseñar DB'}),
+            'descripcion': forms.Textarea(attrs={'class': 'input-estilo', 'rows': 3, 'placeholder': 'Descripción detallada de la actividad'}),
             'asignado_a': forms.Select(attrs={'class': 'input-estilo'}),
+            'fecha_entrega': forms.DateTimeInput(attrs={'class': 'input-estilo', 'type': 'datetime-local'}),
             'estado': forms.Select(attrs={'class': 'input-estilo'}),
         }
 
@@ -75,3 +74,12 @@ class OtorgarInsigniaForm(forms.ModelForm):
             'insignia': forms.Select(attrs={'class': 'input-estilo'}),
             'motivo': forms.Textarea(attrs={'class': 'input-estilo', 'rows': 2, 'placeholder': 'Ej: Por ayudar a sus compañeros...'}),
         }
+
+class CompletarTareaForm(forms.Form):
+    """Formulario para completar una tarea con evidencia"""
+    archivo_evidencia = forms.FileField(
+        label="Archivo de evidencia",
+        help_text="PDF, imagen o archivo comprimido (máx 10MB)",
+        required=True,
+        widget=forms.FileInput(attrs={'class': 'input-estilo', 'accept': '.pdf,.jpg,.jpeg,.png,.zip,.rar'})
+    )

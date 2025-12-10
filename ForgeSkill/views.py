@@ -250,6 +250,7 @@ def set_progreso_proyecto(request, proyecto_id):
 @login_required
 def toggle_tarea_estado(request, tarea_id):
     # Permite a participantes marcar una tarea como completada/pendiente
+    from django.utils import timezone
     tarea = get_object_or_404(Tarea, id=tarea_id)
     proyecto = tarea.proyecto
 
@@ -262,8 +263,25 @@ def toggle_tarea_estado(request, tarea_id):
         nuevo_estado = request.POST.get('estado', 'pendiente')
         if nuevo_estado in ['pendiente', 'en_progreso', 'completada']:
             tarea.estado = nuevo_estado
-            tarea.save()
-            messages.success(request, f'Tarea actualizada a: {nuevo_estado}')
+            
+            # Si se marca como completada, se requiere archivo de evidencia
+            if nuevo_estado == 'completada':
+                if 'archivo_evidencia' in request.FILES:
+                    tarea.archivo_evidencia = request.FILES['archivo_evidencia']
+                    tarea.completado_por = request.user
+                    tarea.fecha_completado = timezone.now()
+                    tarea.save()
+                    messages.success(request, 'Actividad marcada como completada con evidencia.')
+                else:
+                    messages.error(request, 'Debes cargar un archivo de evidencia para completar la tarea.')
+                    return redirect('proyecto_detalle', proyecto_id=proyecto.id)
+            else:
+                # Si se cambia a otro estado, limpiar los datos de completado
+                tarea.completado_por = None
+                tarea.fecha_completado = None
+                tarea.archivo_evidencia = None
+                tarea.save()
+                messages.success(request, f'Actividad actualizada a: {nuevo_estado}')
         else:
             messages.error(request, 'Estado inválido.')
 
@@ -305,9 +323,9 @@ def perfil(request):
         form = PerfilForm(request.POST, request.FILES, instance=perfil)
         if form.is_valid():
             form.save()
-            perfil.conocimientos.set(form.cleaned_data['conocimientos'])
+            # El campo conocimientos ahora es un TextField, no ManyToMany
+            # Por lo que no es necesario hacer set()
             return redirect("perfil")
-
     else:
         form = PerfilForm(instance=perfil)
 
@@ -317,6 +335,7 @@ def perfil(request):
         "form": form,
         "perfil": perfil,
         "experiencias": experiencias,
+        "edit_mode": False,
     })
 
 def admin_panel(request):
@@ -715,30 +734,11 @@ def generar_pdf(request):
         story.append(Spacer(1, 0.12*inch))
     
     # --- HABILIDADES ---
-    conocimientos_list = perfil.conocimientos.all()
-    if conocimientos_list.exists():
+    if perfil.conocimientos:
         story.append(Paragraph("HABILIDADES TÉCNICAS", style_section_title))
-        habilidades_data = []
-        habilidades = list(conocimientos_list)
-        
-        # Crear dos columnas de habilidades
-        for i in range(0, len(habilidades), 2):
-            fila = [f"• {habilidades[i].nombre}"]
-            if i+1 < len(habilidades):
-                fila.append(f"• {habilidades[i+1].nombre}")
-            habilidades_data.append(fila)
-        
-        if habilidades_data:
-            habilidades_table = Table(habilidades_data, colWidths=[3*inch, 2.2*inch])
-            habilidades_table.setStyle(TableStyle([
-                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 0), (-1, -1), 9),
-                ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#333333')),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('LEFTPADDING', (0, 0), (-1, -1), 0),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-            ]))
-            story.append(habilidades_table)
+        for linea in perfil.conocimientos.split('\n'):
+            if linea.strip():
+                story.append(Paragraph(f"• {linea.strip()}", style_normal))
         story.append(Spacer(1, 0.12*inch))
     
     # --- EXPERIENCIA ---
