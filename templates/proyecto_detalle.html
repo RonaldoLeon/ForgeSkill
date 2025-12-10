@@ -1,4 +1,5 @@
 {% extends 'usuario.html' %}
+{% load user_tags %}
 
 {% block title %}Proyecto{% endblock %}
 
@@ -16,11 +17,11 @@
                 <strong>Encargado:</strong>
                 <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
                     {% if proyecto.lider.perfil.foto %}
-                        <img src="{{ proyecto.lider.perfil.foto.url }}" alt="{{ proyecto.lider.username }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover">
+                        <a href="{% url 'public_profile_username' proyecto.lider.username %}"><img src="{{ proyecto.lider.perfil.foto.url }}" alt="{{ proyecto.lider.username }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover"></a>
                     {% endif %}
                     <div>
-                        <div style="font-weight:700">{{ proyecto.lider.get_full_name|default:proyecto.lider.username }}</div>
-                        <div style="font-size:13px;color:#3f5f66">@{{ proyecto.lider.username }}</div>
+                        <div style="font-weight:700">{% user_link proyecto.lider %}</div>
+                        <div style="font-size:13px;color:#3f5f66">@<a href="{% url 'public_profile_username' proyecto.lider.username %}">{{ proyecto.lider.username }}</a></div>
                     </div>
                 </div>
             </div>
@@ -97,7 +98,7 @@
           </form>
           <div style="flex:1">
             <div style="font-weight:700;color:#17293f">{{ tarea.titulo }}</div>
-            {% if tarea.asignado_a %}<div style="font-size:12px;color:#666">Asignado a: <strong>{{ tarea.asignado_a.get_full_name|default:tarea.asignado_a.username }}</strong></div>{% endif %}
+            {% if tarea.asignado_a %}<div style="font-size:12px;color:#666">Asignado a: <strong><a href="{% url 'public_profile_username' tarea.asignado_a.username %}">{{ tarea.asignado_a.get_full_name|default:tarea.asignado_a.username }}</a></strong></div>{% endif %}
           </div>
           {% if is_leader %}
             <a href="{% url 'editar_tarea' tarea.id %}" style="font-size:12px;color:#00bcd4;text-decoration:none;padding:6px 10px">Editar</a>
@@ -148,7 +149,7 @@
                         <ul style="list-style:none;padding-left:0;margin:0">
                             {% for io in insignias_otorgadas %}
                                 <li style="padding:8px 0;border-bottom:1px dashed rgba(0,0,0,0.04)">
-                                    <strong>{{ io.usuario.get_full_name|default:io.usuario.username }}</strong>
+                                    <strong><a href="{% url 'public_profile_username' io.usuario.username %}">{{ io.usuario.get_full_name|default:io.usuario.username }}</a></strong>
                                     — <em style="color:#274b53">{{ io.insignia.nombre }}</em>
                                     <div style="font-size:12px;color:#666">{{ io.fecha|date:"d/m/Y H:i" }}{% if io.motivo %} — {{ io.motivo|truncatechars:70 }}{% endif %}</div>
                                 </li>
@@ -160,4 +161,30 @@
                 </div>
             </div>
         </div>
+
+<!-- Historial de Actividad -->
+<div class="card" style="max-width:1100px;margin:28px auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h3>🕘 Historial de Actividad</h3>
+    </div>
+
+    {% if actividad %}
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px">
+            {% for ev in actividad %}
+                <li style="padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.04);background:#fff;display:flex;gap:12px;align-items:flex-start">
+                    <div style="min-width:44px;text-align:center;color:#666;font-size:13px">
+                        {{ ev.fecha|date:"d/m H:i" }}
+                    </div>
+                    <div style="flex:1">
+                        <div style="font-weight:700;color:#17293f">{{ ev.accion }}</div>
+                        <div style="font-size:13px;color:#445">{{ ev.detalle }}</div>
+                        <div style="font-size:12px;color:#888;margin-top:6px">Por: {% if ev.usuario %}<a href="{% url 'public_profile_username' ev.usuario.username %}">{{ ev.usuario.get_full_name|default:ev.usuario.username }}</a>{% else %}Sistema{% endif %}</div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div style="padding:20px;color:#666">No hay actividad registrada en este proyecto.</div>
+    {% endif %}
+</div>
 {% endblock %}

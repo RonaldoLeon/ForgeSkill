@@ -3,14 +3,14 @@ from django.urls import path
 from ForgeSkill.views import dashboard_view, proyectos_list, proyecto_detalle,mis_proyectos, perfil, chat, notificaciones, chats_list, set_progreso_proyecto, toggle_tarea_estado
 from ForgeSkill.views import crear_proyecto, block_user, change_role, admin_delete_proyecto
 from ForgeSkill.views import approve_project, reject_project
-from ForgeSkill.views import join_project, leave_project
+from ForgeSkill.views import join_project, leave_project, aceptar_postulante, rechazar_postulante
 from ForgeSkill.views import  login_view, home_view, resitro_view, recuperacion_view , usuario_view, logout_view
 from ForgeSkill.views import agregar_experiencia, generar_pdf
 from ForgeSkill.views import gestion_proyecto, otorgar_insignia, admin_dashboard
 from ForgeSkill.views import crear_tarea, editar_tarea, eliminar_tarea, lista_examenes, crear_pregunta
 from ForgeSkill.views import tomar_examen
 from ForgeSkill.views import lista_insignias, otorgar_insignia_mentor
-from ForgeSkill.views import foro_proyecto, postular, cancel_postulacion, approve_solicitud, reject_solicitud
+from ForgeSkill.views import foro_proyecto, postular, cancel_postulacion, approve_solicitud, reject_solicitud, public_profile, public_profile_by_username
 from .views import login_view, root_redirect,admin_panel
 from django.conf import settings
 from django.conf.urls.static import static
@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/proyecto/rechazar/<int:proyecto_id>/', reject_project, name='reject_project'),
     path('admin/insignias/', lista_insignias, name='lista_insignias'),
     path('admin/proyecto/eliminar/<int:proyecto_id>/', admin_delete_proyecto, name='admin_delete_proyecto'),
+    path('admin/solicitud/aceptar/<int:solicitud_id>/', aceptar_postulante, name='aceptar_postulante'),
+    path('admin/solicitud/rechazar/<int:solicitud_id>/', rechazar_postulante, name='rechazar_postulante'),
 
     path('admin/', admin.site.urls),
     path('login/', login_view, name='login'),
@@ -65,6 +67,8 @@ urlpatterns = [
     path('proyecto/<int:proyecto_id>/foro/', foro_proyecto, name='foro_proyecto'),
     path('postular/<int:proyecto_id>/', postular, name='postular'),
     path('postular/cancelar/<int:proyecto_id>/', cancel_postulacion, name='cancel_postulacion'),
+    path('usuario/<str:username>/', public_profile_by_username, name='public_profile_username'),
+    path('usuario/<int:user_id>/', public_profile, name='public_profile'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

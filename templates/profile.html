@@ -15,10 +15,9 @@
         <p>No tienes foto. Sube una:</p>
     {% endif %}
 
-    <form method="POST" enctype="multipart/form-data">
+    <form id="perfil-form" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button class="boton">Guardar Perfil</button>
     </form>
 
     <hr>
@@ -62,8 +61,12 @@
     </ul>
 
     <hr>
+    <!-- Guardar perfil al final: botón vinculado al formulario por atributo form -->
+    <div style="display:flex;gap:8px;align-items:center;margin-top:12px;margin-bottom:14px;">
+        <button type="submit" form="perfil-form" class="boton">Guardar Perfil</button>
+    </div>
 
-    <div style="display:flex;gap:8px;align-items:center;margin-top:12px;">
+    <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
         <a href="/perfil/pdf/" class="boton">Generar PDF CV</a>
         <form method="POST" action="{% url 'logout' %}" style="margin:0;">
             {% csrf_token %}

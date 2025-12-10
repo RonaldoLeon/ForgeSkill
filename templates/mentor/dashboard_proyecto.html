@@ -18,7 +18,7 @@
             <table class="tabla-simple">
                 {% for sol in solicitudes %}
                 <tr>
-                    <td>{{ sol.usuario.username }}</td>
+                    <td><a href="{% url 'public_profile_username' sol.usuario.username %}">{{ sol.usuario.get_full_name|default:sol.usuario.username }}</a></td>
                     <td>{{ sol.get_estado_display }}</td>
                     <td>
                         {% if sol.estado == 'pendiente' %}

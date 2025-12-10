@@ -195,6 +195,7 @@
 <div class="header">
     <h1>🛡️ Panel de Administración ForgeSkill</h1>
     <div class="header-actions">
+        <a href="{% url 'dashboard' %}" class="btn-header btn-secondary">📊 Dashboard</a>
         <a href="{% url 'admin:index' %}" class="btn-header btn-secondary">← Volver a Django Admin</a>
         <a href="{% url 'crear_proyecto' %}" class="btn-header btn-primary">➕ Crear Proyecto</a>
         <a href="{% url 'logout' %}" class="btn-header btn-danger">🚪 Cerrar Sesión</a>
@@ -226,7 +227,7 @@
             <div class="item-lista">
                 <div>
                     <strong>{{ p.nombre }}</strong><br>
-                    <small>Líder: {{ p.lider.username }}</small>
+                    <small>Líder: <a href="{% url 'public_profile_username' p.lider.username %}">{{ p.lider.get_full_name|default:p.lider.username }}</a></small>
                 </div>
                 <div>
                     <form method="post" action="{% url 'approve_project' p.id %}" style="display:inline">{% csrf_token %}
@@ -256,7 +257,7 @@
                 <tbody>
                     {% for u in usuarios %}
                     <tr>
-                        <td>{{ u.username }}</td>
+                        <td><a href="{% url 'public_profile_username' u.username %}">{{ u.username }}</a></td>
                         <td><strong>{{ u.rol }}</strong></td>
                         <td>
                             <span class="{% if u.is_active %}status-active{% else %}status-blocked{% endif %}">
@@ -280,6 +281,30 @@
     </div>
 
     <div class="card" style="margin-top:20px;">
+        <h3>✉️ Postulantes a Aceptar</h3>
+        {% if solicitudes_pendientes %}
+            {% for solicitud in solicitudes_pendientes %}
+            <div class="item-lista">
+                <div>
+                    <strong>{{ solicitud.usuario.first_name }} {{ solicitud.usuario.last_name }}</strong><br>
+                    <small>Proyecto: <strong>{{ solicitud.proyecto.nombre }}</strong></small>
+                </div>
+                <div>
+                    <form method="post" action="{% url 'aceptar_postulante' solicitud.id %}" style="display:inline">{% csrf_token %}
+                        <button type="submit" class="btn-small btn-success">✓ Aceptar</button>
+                    </form>
+                    <form method="post" action="{% url 'rechazar_postulante' solicitud.id %}" style="display:inline">{% csrf_token %}
+                        <button type="submit" class="btn-small btn-danger-small" onclick="return confirm('¿Rechazar esta solicitud?');">✕ Rechazar</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center;color:#95a5a6;">📭 No hay postulantes pendientes en tus proyectos.</p>
+        {% endif %}
+    </div>
+
+    <div class="card" style="margin-top:20px;">
         <h3>📦 Todos los Proyectos</h3>
         {% for p in proyectos_all %}
             <div class="item-lista">
@@ -293,7 +318,7 @@
                     </div>
                     <div>
                         <strong>{{ p.nombre }}</strong><br>
-                        <small>Líder: {{ p.lider.username }} • Estado: {{ p.estado }}</small>
+                        <small>Líder: <a href="{% url 'public_profile_username' p.lider.username %}">{{ p.lider.get_full_name|default:p.lider.username }}</a> • Estado: {{ p.estado }}</small>
                     </div>
                 </div>
                 <div>

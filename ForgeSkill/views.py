@@ -22,8 +22,9 @@ from .models import Insignia, InsigniaOtorgada
 from .forms import InsigniaForm, OtorgarInsigniaForm
 from .models import ComentarioProyecto, Proyecto
 from django.shortcuts import get_object_or_404, redirect
-from .models import Solicitud, Proyecto
+from .models import Solicitud, Proyecto, ProyectoActividad
 from django.shortcuts import redirect
+from django.urls import reverse
 
 def root_redirect(request):
     return redirect('login')
@@ -221,6 +222,9 @@ def proyecto_detalle(request, proyecto_id=None): # Acepta un ID opcionalmente
     # Insignias: catálogo general y las otorgadas a participantes de este proyecto
     insignias_catalogo = Insignia.objects.all()
     insignias_otorgadas = InsigniaOtorgada.objects.filter(usuario__in=list(participantes) + [proyecto.lider]).order_by('-fecha')[:12]
+    # Historial de actividad del proyecto
+    from .models import ProyectoActividad
+    actividad = ProyectoActividad.objects.filter(proyecto=proyecto).order_by('-fecha')[:50]
 
     return render(request, 'proyecto_detalle.html', {
         'proyecto': proyecto,
@@ -233,6 +237,7 @@ def proyecto_detalle(request, proyecto_id=None): # Acepta un ID opcionalmente
         'progreso_auto': progreso_auto,
         'insignias_catalogo': insignias_catalogo,
         'insignias_otorgadas': insignias_otorgadas,
+        'actividad': actividad,
     })
 
 
@@ -335,6 +340,13 @@ def admin_panel(request):
             'is_staff': u.is_staff,
         })
 
+    # Obtener solicitudes pendientes de proyectos donde el usuario logeado es líder
+    mis_proyectos_id = Proyecto.objects.filter(lider=request.user).values_list('id', flat=True)
+    solicitudes_pendientes = Solicitud.objects.filter(
+        proyecto_id__in=mis_proyectos_id,
+        estado='pendiente'
+    ).select_related('usuario', 'proyecto')
+
     return render(request, 'admin_panel.html', {
         "stats": {
             "usuarios_totales": usuarios_totales,
@@ -344,6 +356,56 @@ def admin_panel(request):
         "usuarios": usuarios,
         "proyectos_pendientes": proyectos_pendientes,
         "proyectos_all": proyectos_all,
+        "solicitudes_pendientes": solicitudes_pendientes,
+    })
+
+
+def public_profile(request, user_id):
+    """Vista pública de perfil de un usuario (solo lectura)."""
+    from django.contrib.auth.models import User as AuthUser
+    user = get_object_or_404(AuthUser, id=user_id)
+    # Perfil asociado (si existe)
+    perfil = None
+    try:
+        perfil = Perfil.objects.get(user=user)
+    except Perfil.DoesNotExist:
+        perfil = None
+
+    experiencias = Experiencia.objects.filter(perfil__user=user).order_by('-fecha') if perfil else []
+    # Proyectos donde participa o lidera
+    proyectos = Proyecto.objects.filter(Q(participantes=user) | Q(lider=user)).distinct()
+    actividad = ProyectoActividad.objects.filter(usuario=user).select_related('proyecto')[:20]
+
+    return render(request, 'public_profile.html', {
+        'perfil_usuario': user,
+        'perfil': perfil,
+        'experiencias': experiencias,
+        'proyectos': proyectos,
+        'actividad': actividad,
+    })
+
+
+def public_profile_by_username(request, username):
+    """Lookup public profile by username (case-insensitive) and render same template."""
+    from django.contrib.auth.models import User as AuthUser
+    user = get_object_or_404(AuthUser, username__iexact=username)
+
+    perfil = None
+    try:
+        perfil = Perfil.objects.get(user=user)
+    except Perfil.DoesNotExist:
+        perfil = None
+
+    experiencias = Experiencia.objects.filter(perfil__user=user).order_by('-fecha') if perfil else []
+    proyectos = Proyecto.objects.filter(Q(participantes=user) | Q(lider=user)).distinct()
+    actividad = ProyectoActividad.objects.filter(usuario=user).select_related('proyecto')[:20]
+
+    return render(request, 'public_profile.html', {
+        'perfil_usuario': user,
+        'perfil': perfil,
+        'experiencias': experiencias,
+        'proyectos': proyectos,
+        'actividad': actividad,
     })
 
 
@@ -377,6 +439,37 @@ def leave_project(request, proyecto_id):
     proyecto = get_object_or_404(Proyecto, id=proyecto_id)
     proyecto.participantes.remove(request.user)
     return redirect('proyectos_list')
+
+
+@login_required
+@require_POST
+def aceptar_postulante(request, solicitud_id):
+    """Acepta una solicitud de postulante al proyecto."""
+    solicitud = get_object_or_404(Solicitud, id=solicitud_id)
+    # Verificar que el usuario logeado sea el líder del proyecto
+    if solicitud.proyecto.lider != request.user:
+        return redirect('admin_panel')
+    
+    solicitud.estado = 'aprobada'
+    solicitud.save()
+    # Agregar el usuario a los participantes del proyecto
+    solicitud.proyecto.participantes.add(solicitud.usuario)
+    return redirect('admin_panel')
+
+
+@login_required
+@require_POST
+def rechazar_postulante(request, solicitud_id):
+    """Rechaza una solicitud de postulante al proyecto."""
+    solicitud = get_object_or_404(Solicitud, id=solicitud_id)
+    # Verificar que el usuario logeado sea el líder del proyecto
+    if solicitud.proyecto.lider != request.user:
+        return redirect('admin_panel')
+    
+    solicitud.estado = 'rechazada'
+    solicitud.save()
+    return redirect('admin_panel')
+
 
 @login_required
 @login_required

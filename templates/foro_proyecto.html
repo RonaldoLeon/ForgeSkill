@@ -1,5 +1,6 @@
 {% extends 'usuario.html' %}
 {% load static %}
+{% load user_tags %}
 
 {% block title %}Foro: {{ proyecto.nombre }}{% endblock %}
 
@@ -22,7 +23,7 @@
                 </div>
             {% else %}
                 <div class="msg otros" style="position: relative; margin-bottom: 25px;">
-                    <div style="font-weight: bold; font-size: 11px; margin-bottom: 2px; color: #00BCD4;">{{ c.usuario.username }}</div>
+                    <div style="font-weight: bold; font-size: 11px; margin-bottom: 2px; color: #00BCD4;">{% user_link c.usuario %}</div>
                     {{ c.contenido }}
                     <div style="font-size: 10px; opacity: 0.6; margin-top: 5px;">{{ c.fecha|date:"H:i" }}</div>
                 </div>

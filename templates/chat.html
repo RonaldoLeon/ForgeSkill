@@ -1,4 +1,5 @@
 {% load static %}
+{% load user_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -286,9 +287,9 @@
     <div class="chat-main">
         <div class="chat-header">
             <div class="chat-header-avatar">{{ otro.username|first|upper }}</div>
-            <div class="chat-header-info">
-                <h2>{{ otro.get_full_name|default:otro.username }}</h2>
-                <p>@{{ otro.username }}</p>
+                <div class="chat-header-info">
+                <h2>{% user_link otro %}</h2>
+                <p>@<a href="{% url 'public_profile_username' otro.username %}">{{ otro.username }}</a></p>
             </div>
             <a href="{% url 'notificaciones' %}" class="chat-header-action">← Atrás</a>
         </div>

@@ -137,3 +137,21 @@ class ComentarioProyecto(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} en {self.proyecto.nombre}"
+
+
+class ProyectoActividad(models.Model):
+    """
+    Historial de acciones relacionadas a un proyecto (tareas, cambios de estado, participantes, etc.).
+    """
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, related_name='actividad')
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    accion = models.CharField(max_length=100)
+    detalle = models.TextField(blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha']
+
+    def __str__(self):
+        who = self.usuario.username if self.usuario else 'Sistema'
+        return f"{self.fecha} — {who}: {self.accion}"

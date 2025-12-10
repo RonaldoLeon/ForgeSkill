@@ -291,7 +291,7 @@
                     <div class="proyecto-content">
                         <h3 class="proyecto-title">{{ proyecto.nombre }}</h3>
                         <div class="proyecto-meta">
-                            <span class="meta-badge">👤 {{ proyecto.lider.username }}</span>
+                            <span class="meta-badge">👤 <a href="{% url 'public_profile_username' proyecto.lider.username %}">{{ proyecto.lider.get_full_name|default:proyecto.lider.username }}</a></span>
                             {% if proyecto.dificultad %}
                                 <span class="dificultad dificultad-{{ proyecto.dificultad }}">{{ proyecto.dificultad }}</span>
                             {% endif %}
@@ -302,11 +302,6 @@
                                 <form method="post" action="{% url 'leave_project' proyecto.id %}" style="display:inline">
                                     {% csrf_token %}
                                     <button type="submit" class="btn-small btn-leave" onclick="return confirm('¿Abandonar este proyecto?');">🚪 Abandonar</button>
-                                </form>
-                            {% else %}
-                                <form method="post" action="{% url 'join_project' proyecto.id %}" style="display:inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-small btn-join" onclick="return confirm('¿Unirte a este proyecto?');">✓ Unirse</button>
                                 </form>
                             {% endif %}
                             <a href="{% url 'proyecto_detalle' proyecto.id %}" class="btn-small btn-ver">📄 Ver detalles</a>
